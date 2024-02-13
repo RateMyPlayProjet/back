@@ -23,11 +23,17 @@ class Films
     #[ORM\Column(length: 255)]
     private ?string $type = null;
 
-    #[ORM\Column(length:255)]
-    private ?string $date = null;
 
     #[ORM\Column(length: 255)]
     private ?string $status = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $createAt = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $updateAt = null;
+
+    private ?bool $force = false;
 
     public function getId(): ?int
     {
@@ -44,6 +50,10 @@ class Films
         $this->name = $name;
 
         return $this;
+    }
+
+    public function getForce(): ?bool{
+        return $this->force;
     }
 
     public function getAuthor(): ?string
@@ -70,18 +80,6 @@ class Films
         return $this;
     }
 
-    public function getDate(): ?string
-    {
-        return $this->date;
-    }
-
-    public function setDate(string $date): static
-    {
-        $this->date = $date;
-
-        return $this;
-    }
-
     public function getStatus(): ?string
     {
         return $this->status;
@@ -90,6 +88,30 @@ class Films
     public function setStatus(string $status): static
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getCreateAt(): ?\DateTimeInterface
+    {
+        return $this->createAt;
+    }
+
+    public function setCreateAt(\DateTimeInterface $createAt): static
+    {
+        $this->createAt = $createAt;
+
+        return $this;
+    }
+
+    public function getUpdateAt(): ?\DateTimeInterface
+    {
+        return $this->updateAt;
+    }
+
+    public function setUpdateAt(\DateTimeInterface $updateAt): static
+    {
+        $this->updateAt = $updateAt;
 
         return $this;
     }

@@ -26,10 +26,25 @@ class AppFixtures extends Fixture
         // $manager->persist($product);
         //$films = [];
         for ($i=0; $i<100; $i++) {
+            //Instantiate new Films
             $film = new Films();
-            $film->setName($this->faker->name())->setAuthor($this->faker->name())->setType($this->faker->word())->setDate($this->faker->date())->setStatus($this->faker->word("on"));
+            //Handle created && updated datetime
+            $created = $this->faker->dateTimeBetween("-1 week","now");
+            $updated = $this->faker->dateTimeBetween($created,"now");
+
+            //Asign Properties to Entity
+            $film->setName($this->faker->name())
+            ->setAuthor($this->faker->name())
+            ->setType($this->faker->word())
+            ->setDate($this->faker->date())
+            ->setStatus("on")
+            ->setCreateAt($created)
+            ->setUpdateAt($updated);
+            //Add to transaction
             $manager->persist($film);
         }
+        //Execute transaction
         $manager->flush();
+    
     }
 }

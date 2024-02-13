@@ -21,20 +21,20 @@ class FilmsRepository extends ServiceEntityRepository
         parent::__construct($registry, Films::class);
     }
 
-//    /**
-//     * @return Films[] Returns an array of Films objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('f') f-> film
-//            ->andWhere('f.name = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('f.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    /**
+        * @return Films[] Returns an array of Films objects
+     */
+    /* public function findByStatus($value): array
+    {
+        return $this->createQueryBuilder('f') f-> film
+            ->andWhere('f.name = :val')
+            ->setParameter('val', $value)
+            ->orderBy('f.id', 'ASC')
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult()
+       ;
+   } */
 
 //    public function findOneBySomeField($value): ?Films
 //    {
