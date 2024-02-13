@@ -3,6 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\Game;
+use App\Entity\Plateforme;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
@@ -25,7 +26,7 @@ class AppFixtures extends Fixture
         // $product = new Product();
         // $manager->persist($product);
         //$films = [];
-        $games = [];
+        $gamesEntries = [];
         for ($i=0; $i<100; $i++) {
             //Instantiate new Films
             $game = new Game();
@@ -36,22 +37,35 @@ class AppFixtures extends Fixture
             //Asign Properties to Entity
             $game->setName($this->faker->name())
             ->setGenre($this->faker->word())
+            ->setDescription($this->faker->word())
+            ->setDateSortie($updated)
             ->setStatus("on")
             ->setCreateAt($created)
+            ->setNbJoueurs($this->faker->numberBetween(1,10))
             ->setUpdateAt($updated);
 
+
             //stock Game entry
-            $games[] = $game;
+            $gamesEntries[] = $game;
+            
             //Add to transaction
             $manager->persist($game);
 
-            /* foreach ($games as $gameEntry => $value) {
-                $evolution = $games[array_rand($games,1)];
-                if($gameEntry->getName() != $evolution->getId()) {
-                    //$gameEntry->setEvolution($evolution);
-                    $manager->persist($gameEntry);
-                }
-            } */
+            $plateformes = [];
+            for ($j= 0; $j< 100; $j++) {
+                $plateforme = new Plateforme();
+                $plateforme->setName($game);
+                $plateformes[] = $plateforme;
+                $manager->persist($plateforme);
+            }
+            
+
+            foreach ($gamesEntries as $key => $gameEntry) {
+                $plateformesID = $plateformes[array_rand($plateforme,1)];
+                $gameEntry->addPlateforme($plateformesID);
+                $manager->persist($gameEntry);
+            
+            }
         }
         //Execute transaction
         $manager->flush();

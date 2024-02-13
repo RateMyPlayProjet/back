@@ -7,7 +7,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-
+//Serializer groups
+use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Entity(repositoryClass: GameRepository::class)]
 class Game
 {
@@ -17,6 +18,7 @@ class Game
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(["getAll"])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
@@ -29,14 +31,25 @@ class Game
     private ?\DateTimeInterface $updateAt = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(["getAll"])]
     private ?string $genre = null;
 
-    #[ORM\OneToMany(mappedBy: 'name', targetEntity: Platforme::class)]
-    private Collection $platformes;
+    #[ORM\Column(length: 255)]
+    private ?string $description = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $dateSortie = null;
+
+    #[ORM\Column]
+    private ?int $nbJoueurs = null;
+
+    #[ORM\ManyToMany(targetEntity: Plateforme::class, inversedBy: 'namePlateforme')]
+    #[Groups(["getAll"])]
+    private Collection $plateformes;
 
     public function __construct()
     {
-        $this->platformes = new ArrayCollection();
+        $this->plateformes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -104,32 +117,62 @@ class Game
         return $this;
     }
 
-    /**
-     * @return Collection<int, Platforme>
-     */
-    public function getPlatformes(): Collection
+    public function getDescription(): ?string
     {
-        return $this->platformes;
+        return $this->description;
     }
 
-    public function addPlatforme(Platforme $platforme): static
+    public function setDescription(string $description): static
     {
-        if (!$this->platformes->contains($platforme)) {
-            $this->platformes->add($platforme);
-            $platforme->setName($this);
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getDateSortie(): ?\DateTimeInterface
+    {
+        return $this->dateSortie;
+    }
+
+    public function setDateSortie(\DateTimeInterface $dateSortie): static
+    {
+        $this->dateSortie = $dateSortie;
+
+        return $this;
+    }
+
+    public function getNbJoueurs(): ?int
+    {
+        return $this->nbJoueurs;
+    }
+
+    public function setNbJoueurs(int $nbJoueurs): static
+    {
+        $this->nbJoueurs = $nbJoueurs;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Plateforme>
+     */
+    public function getPlateformes(): Collection
+    {
+        return $this->plateformes;
+    }
+
+    public function addPlateforme(Plateforme $plateforme): static
+    {
+        if (!$this->plateformes->contains($plateforme)) {
+            $this->plateformes->add($plateforme);
         }
 
         return $this;
     }
 
-    public function removePlatforme(Platforme $platforme): static
+    public function removePlateforme(Plateforme $plateforme): static
     {
-        if ($this->platformes->removeElement($platforme)) {
-            // set the owning side to null (unless already changed)
-            if ($platforme->getName() === $this) {
-                $platforme->setName(null);
-            }
-        }
+        $this->plateformes->removeElement($plateforme);
 
         return $this;
     }

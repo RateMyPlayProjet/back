@@ -21,7 +21,7 @@ class GameController extends AbstractController
     #[Route('/api/game', name: 'game.getAll', methods: ['GET'])]
     public function getAllGame(GameRepository $repository, SerializerInterface $serializer): JsonResponse{
         $games = $repository->findAll();
-        $jsonFilm= $serializer->serialize($games,'json');
+        $jsonFilm= $serializer->serialize($games,'json', ['groups'=> "getAll"]);
         return new JsonResponse($jsonFilm,200,[],true);
         /* dd($films);//equivalent de console.log */
     }
@@ -29,9 +29,10 @@ class GameController extends AbstractController
     #[Route('/api/game/{idGame}', name: 'game.get', methods: ['GET'])]
     #[ParamConverter("game", options: ["id" => "idGame"])]
     
-    public function getFilm(Game $game, SerializerInterface $serializer): JsonResponse{
-        $jsonFilm= $serializer->serialize($game,'json');
-        return new JsonResponse($jsonFilm,200,[],true);
+    public function getGame(Game $game, SerializerInterface $serializer): JsonResponse{
+       /*  $repository->findByStatus("on", $idGame); */
+        $jsonGame= $serializer->serialize($game,'json', ['groups'=> "getAll"]);
+        return new JsonResponse($jsonGame,200,[],true);
         /* dd($films);//equivalent de console.log */
     }
 
@@ -46,11 +47,16 @@ class GameController extends AbstractController
      */
     #[Route('/api/game', name: 'game.post', methods: ['POST'])]
     //#[ParamConverter("film", options: ["id" => "idFilm"])]
-    public function createFilm(Request $request,  SerializerInterface $serializer, EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator): JsonResponse{
+    public function createFilm(Request $request,  SerializerInterface $serializer, EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator, GameRepository $gameRepository): JsonResponse{
 
         $game = $serializer->deserialize($request->getContent(), Game::class,'json');
         $dateNow = new \DateTime();
-        
+        //$evolution = $request->toArray("evolution");
+        /* dd($evolution); */
+        /* $gameRepository->find($evolution); */
+        /* if(!is_null($evolution) && $evolution instanceof Game)){
+            $game =>addEvolution($evolution);
+        } */
         $game
         ->setStatus("on")
         ->setCreateAt($dateNow)

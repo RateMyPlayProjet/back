@@ -2,27 +2,27 @@
 
 namespace App\Repository;
 
-use App\Entity\Platforme;
+use App\Entity\Plateforme;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Platforme>
+ * @extends ServiceEntityRepository<Plateforme>
  *
- * @method Platforme|null find($id, $lockMode = null, $lockVersion = null)
- * @method Platforme|null findOneBy(array $criteria, array $orderBy = null)
- * @method Platforme[]    findAll()
- * @method Platforme[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Plateforme|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Plateforme|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Plateforme[]    findAll()
+ * @method Plateforme[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class PlatformeRepository extends ServiceEntityRepository
+class PlateformeRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Platforme::class);
+        parent::__construct($registry, Plateforme::class);
     }
 
 //    /**
-//     * @return Platforme[] Returns an array of Platforme objects
+//     * @return Plateforme[] Returns an array of Plateforme objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -36,7 +36,7 @@ class PlatformeRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?Platforme
+//    public function findOneBySomeField($value): ?Plateforme
 //    {
 //        return $this->createQueryBuilder('p')
 //            ->andWhere('p.exampleField = :val')
