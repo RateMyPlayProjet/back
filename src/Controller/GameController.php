@@ -3,8 +3,8 @@
 namespace App\Controller;
 
 use Doctrine\ORM\EntityManagerInterface;
-use App\Entity\Films;
-use App\Repository\FilmsRepository;
+use App\Entity\Game;
+use App\Repository\GameRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,27 +16,27 @@ use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
-class FilmController extends AbstractController
+class GameController extends AbstractController
 {
-    #[Route('/api/film', name: 'film.getAll', methods: ['GET'])]
-    public function getAllFilm(FilmsRepository $repository, SerializerInterface $serializer): JsonResponse{
-        $films = $repository->findAll();
-        $jsonFilm= $serializer->serialize($films,'json');
+    #[Route('/api/game', name: 'game.getAll', methods: ['GET'])]
+    public function getAllGame(GameRepository $repository, SerializerInterface $serializer): JsonResponse{
+        $games = $repository->findAll();
+        $jsonFilm= $serializer->serialize($games,'json');
         return new JsonResponse($jsonFilm,200,[],true);
         /* dd($films);//equivalent de console.log */
     }
 
-    #[Route('/api/film/{idFilm}', name: 'film.get', methods: ['GET'])]
-    #[ParamConverter("film", options: ["id" => "idFilm"])]
+    #[Route('/api/game/{idGame}', name: 'game.get', methods: ['GET'])]
+    #[ParamConverter("game", options: ["id" => "idGame"])]
     
-    public function getFilm(Films $film, SerializerInterface $serializer): JsonResponse{
-        $jsonFilm= $serializer->serialize($film,'json');
+    public function getFilm(Game $game, SerializerInterface $serializer): JsonResponse{
+        $jsonFilm= $serializer->serialize($game,'json');
         return new JsonResponse($jsonFilm,200,[],true);
         /* dd($films);//equivalent de console.log */
     }
 
     /**
-     * Create new film
+     * Create new game
      *
      * @param Request $request
      * @param SerializerInterface $serializer
@@ -44,26 +44,26 @@ class FilmController extends AbstractController
      * @param UrlGeneratorInterface $urlGenerator
      * @return JsonResponse
      */
-    #[Route('/api/film', name: 'film.post', methods: ['POST'])]
+    #[Route('/api/game', name: 'game.post', methods: ['POST'])]
     //#[ParamConverter("film", options: ["id" => "idFilm"])]
     public function createFilm(Request $request,  SerializerInterface $serializer, EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator): JsonResponse{
 
-        $film = $serializer->deserialize($request->getContent(), Films::class,'json');
+        $game = $serializer->deserialize($request->getContent(), Game::class,'json');
         $dateNow = new \DateTime();
         
-        $film
+        $game
         ->setStatus("on")
         ->setCreateAt($dateNow)
         ->setUpdateAt($dateNow);
     
         //$film = new Films();
         //$film->setName("Malgré moi")->setAuthor("C'est moi wsh")->setType("Horreur")->setDate("05/10/2023")->setStatus("on");
-        $entityManager->persist($film);
+        $entityManager->persist($game);
         $entityManager->flush();
 
-        $jsonFilm= $serializer->serialize($film,'json');
+        $jsonFilm= $serializer->serialize($game,'json');
 
-        $location = $urlGenerator->generate('film.get', ['idFilm'=> $film->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+        $location = $urlGenerator->generate('film.get', ['idFilm'=> $game->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
 
         return new JsonResponse($jsonFilm,Response::HTTP_CREATED,["Location" => $location],true);
 
@@ -72,7 +72,7 @@ class FilmController extends AbstractController
     /** 
      * Update Films with a id
      *
-     * @param Films $films
+     * @param Game $films
      * @param Request $request
      * @param SerializerInterface $serializer
      * @param EntityManagerInterface $entityManager
@@ -80,9 +80,9 @@ class FilmController extends AbstractController
      * @return JsonResponse
      */
     #[Route('/api/film/{id}', name: 'film.update', methods: ['PUT'])]
-    public function updateFilm(Films $films, Request $request,  SerializerInterface $serializer, EntityManagerInterface $entityManager): JsonResponse{
+    public function updateFilm(Game $game, Request $request,  SerializerInterface $serializer, EntityManagerInterface $entityManager): JsonResponse{
 
-        $updatedFilm = $serializer->deserialize($request->getContent(), Films::class,'json', [AbstractNormalizer::OBJECT_TO_POPULATE =>$films]);
+        $updatedFilm = $serializer->deserialize($request->getContent(), Game::class,'json', [AbstractNormalizer::OBJECT_TO_POPULATE =>$game]);
         $updatedFilm->setUpdateAt(new \DateTime());
         $entityManager->persist($updatedFilm);
         $entityManager->flush();
@@ -94,24 +94,24 @@ class FilmController extends AbstractController
     /** 
      * Update Films with a id
      *
-     * @param Films $films
+     * @param Game $games
      * @param Request $request
      * @param SerializerInterface $serializer
      * @param EntityManagerInterface $entityManager
      * @param UrlGeneratorInterface $urlGenerator
      * @return JsonResponse
      */
-    #[Route('/api/film/{id}', name: 'film.delete', methods: ['DELETE'])]
-    public function softDeleteFilm(Films $films, Request $request,  SerializerInterface $serializer, EntityManagerInterface $entityManager): JsonResponse{
+    #[Route('/api/game/{id}', name: 'game.delete', methods: ['DELETE'])]
+    public function softDeleteGame(Game $games, Request $request, EntityManagerInterface $entityManager): JsonResponse{
         
-        $film = $request->toArray()["force"];
-        if($film === true){
-            $entityManager->remove($films);
+        $game = $request->toArray()["force"];
+        if($game === true){
+            $entityManager->remove($games);
             
         }else{
-            $films->setUpdateAt(new \DateTime())
+            $game->setUpdateAt(new \DateTime())
             ->setStatus("off");
-            $entityManager->persist($films);
+            $entityManager->persist($game);
         }
         $entityManager->flush();
         return new JsonResponse(null,JsonResponse::HTTP_NO_CONTENT,[],false);
