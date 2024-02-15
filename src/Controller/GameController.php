@@ -23,7 +23,8 @@ class GameController extends AbstractController
     #[Route('/api/game', name: 'game.getAll', methods: ['GET'])]
     public function getAllGame(GameRepository $repository, SerializerInterface $serializer): JsonResponse{
         $games = $repository->findAll();
-        $jsonFilm= $serializer->serialize($games,'json', ['groups'=> "getAll"]);
+        $jsonFilm= 
+        $serializer->serialize($games,'json', ['groups'=> "getAll"]);
         return new JsonResponse($jsonFilm,200,[],true);
         /* dd($films);//equivalent de console.log */
     }
