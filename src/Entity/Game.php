@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 //Serializer groups
 use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Entity(repositoryClass: GameRepository::class)]
@@ -19,6 +20,9 @@ class Game
 
     #[ORM\Column(length: 255)]
     #[Groups(["getAll"])]
+    #[Assert\NotBlank(message:"Un jeu doit avoir un nom")]
+    #[Assert\NotNull(message:"Un jeu doit avoir un nom")]
+    #[Assert\Length(min:2, minMessage:"Le nom du jeu doit forcement faire plus de {{limit}}")]
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]

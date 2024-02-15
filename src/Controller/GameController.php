@@ -11,10 +11,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Bundle\MakerBundle\Validator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class GameController extends AbstractController
 {
@@ -47,21 +49,27 @@ class GameController extends AbstractController
      */
     #[Route('/api/game', name: 'game.post', methods: ['POST'])]
     //#[ParamConverter("film", options: ["id" => "idFilm"])]
-    public function createFilm(Request $request,  SerializerInterface $serializer, EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator, GameRepository $gameRepository): JsonResponse{
+    public function createGame(Request $request,  SerializerInterface $serializer, EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator,GameRepository $gameRepository, ValidatorInterface $validator): JsonResponse{
 
         $game = $serializer->deserialize($request->getContent(), Game::class,'json');
         $dateNow = new \DateTime();
-        //$evolution = $request->toArray("evolution");
-        /* dd($evolution); */
-        /* $gameRepository->find($evolution); */
-        /* if(!is_null($evolution) && $evolution instanceof Game)){
-            $game =>addEvolution($evolution);
-        } */
+
+        $plateforme = $request->toArray("plateformes");
+        /* dd($plateformes); */
+        $gameRepository->find($plateforme);
+        if(!is_null($plateforme) && $plateforme instanceof Game){
+            $game->addEvolution($plateforme);
+        }
+
         $game
         ->setStatus("on")
         ->setCreateAt($dateNow)
         ->setUpdateAt($dateNow);
     
+        $errors = $validator->validate($game);
+        if($errors ->count() > 0){
+            return new JsonResponse($serializer->serialize($errors,'json'),JsonResponse::HTTP_BAD_REQUEST,[],true);
+        }
         //$film = new Films();
         //$film->setName("Malgré moi")->setAuthor("C'est moi wsh")->setType("Horreur")->setDate("05/10/2023")->setStatus("on");
         $entityManager->persist($game);
@@ -86,7 +94,7 @@ class GameController extends AbstractController
      * @return JsonResponse
      */
     #[Route('/api/film/{id}', name: 'film.update', methods: ['PUT'])]
-    public function updateFilm(Game $game, Request $request,  SerializerInterface $serializer, EntityManagerInterface $entityManager): JsonResponse{
+    public function updateGame(Game $game, Request $request,  SerializerInterface $serializer, EntityManagerInterface $entityManager): JsonResponse{
 
         $updatedFilm = $serializer->deserialize($request->getContent(), Game::class,'json', [AbstractNormalizer::OBJECT_TO_POPULATE =>$game]);
         $updatedFilm->setUpdateAt(new \DateTime());
