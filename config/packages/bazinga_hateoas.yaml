@@ -1,0 +1,3 @@
+bazinga_hateoas:
+    twig_extension:
+        enabled: true

@@ -2,31 +2,40 @@
 
 namespace App\Controller;
 
-use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Game;
 use App\Repository\GameRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\MakerBundle\Validator;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Symfony\Bundle\MakerBundle\Validator;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Component\Routing\Generator\UrlGenerator;
+use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Security\Http\Attribute\isGranted;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 
 class GameController extends AbstractController
 {
     #[Route('/api/game', name: 'game.getAll', methods: ['GET'])]
-    public function getAllGame(GameRepository $repository, SerializerInterface $serializer): JsonResponse{
-        $games = $repository->findAll();
-        $jsonFilm= 
-        $serializer->serialize($games,'json', ['groups'=> "getAll"]);
-        return new JsonResponse($jsonFilm,200,[],true);
-        /* dd($films);//equivalent de console.log */
+    /* #[IsGranted('IS_AUTHENTICATED_FULLY')] */
+    public function getAllGame(GameRepository $repository, SerializerInterface $serializer, TagAwareCacheInterface $cache): JsonResponse{
+        
+        $idCache = "getAllGame";
+        $cache->invalidateTags(["gameCache"]);
+        $jsonGame= $cache->get($idCache, function(ItemInterface $item) use($repository, $serializer){
+            $item->tag("gameCache");
+            $games = $repository->findAll();
+            return $serializer->serialize($games,'json', ['groups'=> "getAll"]);
+        });
+        
+        return new JsonResponse($jsonGame,200,[],true);
     }
 
     #[Route('/api/game/{idGame}', name: 'game.get', methods: ['GET'])]
@@ -49,38 +58,37 @@ class GameController extends AbstractController
      * @return JsonResponse
      */
     #[Route('/api/game', name: 'game.post', methods: ['POST'])]
-    //#[ParamConverter("film", options: ["id" => "idFilm"])]
-    public function createGame(Request $request,  SerializerInterface $serializer, EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator,GameRepository $gameRepository, ValidatorInterface $validator): JsonResponse{
-
+    public function createGame(Request $request,  SerializerInterface $serializer, EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator,GameRepository $gameRepository, ValidatorInterface $validator, TagAwareCacheInterface $cache): JsonResponse{
         $game = $serializer->deserialize($request->getContent(), Game::class,'json');
         $dateNow = new \DateTime();
-
-        $plateforme = $request->toArray("plateformes");
+        
+        $plateforme = $request->toArray()["plateformes"];
         /* dd($plateformes); */
-        $gameRepository->find($plateforme);
         if(!is_null($plateforme) && $plateforme instanceof Game){
             $game->addEvolution($plateforme);
         }
+        
 
         $game
         ->setStatus("on")
         ->setCreateAt($dateNow)
+        ->setDateSortie($dateNow)
         ->setUpdateAt($dateNow);
     
         $errors = $validator->validate($game);
         if($errors ->count() > 0){
             return new JsonResponse($serializer->serialize($errors,'json'),JsonResponse::HTTP_BAD_REQUEST,[],true);
         }
-        //$film = new Films();
-        //$film->setName("Malgré moi")->setAuthor("C'est moi wsh")->setType("Horreur")->setDate("05/10/2023")->setStatus("on");
+        
         $entityManager->persist($game);
         $entityManager->flush();
+        $cache->invalidateTags(["gameCache"]);
 
-        $jsonFilm= $serializer->serialize($game,'json');
+        $jsonGame= $serializer->serialize($game,'json');
 
-        $location = $urlGenerator->generate('film.get', ['idFilm'=> $game->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+        $location = $urlGenerator->generate('game.get', ['idGame'=> $game->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
 
-        return new JsonResponse($jsonFilm,Response::HTTP_CREATED,["Location" => $location],true);
+        return new JsonResponse($jsonGame,Response::HTTP_CREATED,["Location" => $location],true);
 
     }
 
@@ -95,13 +103,13 @@ class GameController extends AbstractController
      * @return JsonResponse
      */
     #[Route('/api/film/{id}', name: 'film.update', methods: ['PUT'])]
-    public function updateGame(Game $game, Request $request,  SerializerInterface $serializer, EntityManagerInterface $entityManager): JsonResponse{
+    public function updateGame(Game $game, Request $request,  SerializerInterface $serializer, EntityManagerInterface $entityManager, TagAwareCacheInterface $cache): JsonResponse{
 
         $updatedFilm = $serializer->deserialize($request->getContent(), Game::class,'json', [AbstractNormalizer::OBJECT_TO_POPULATE =>$game]);
         $updatedFilm->setUpdateAt(new \DateTime());
         $entityManager->persist($updatedFilm);
         $entityManager->flush();
-
+        $cache->invalidateTags(["gameCache"]);
         return new JsonResponse(null,JsonResponse::HTTP_NO_CONTENT,[],false);
 
     }
@@ -117,7 +125,7 @@ class GameController extends AbstractController
      * @return JsonResponse
      */
     #[Route('/api/game/{id}', name: 'game.delete', methods: ['DELETE'])]
-    public function softDeleteGame(Game $games, Request $request, EntityManagerInterface $entityManager): JsonResponse{
+    public function softDeleteGame(Game $games, Request $request, EntityManagerInterface $entityManager, TagAwareCacheInterface $cache): JsonResponse{
         
         $game = $request->toArray()["force"];
         if($game === true){
@@ -129,6 +137,7 @@ class GameController extends AbstractController
             $entityManager->persist($game);
         }
         $entityManager->flush();
+        $cache->invalidateTags(["gameCache"]);
         return new JsonResponse(null,JsonResponse::HTTP_NO_CONTENT,[],false);
 
     }
