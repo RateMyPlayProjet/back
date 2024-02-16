@@ -15,12 +15,11 @@ class Plateforme
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["getAll"])]
+    #[Groups(["getAllFromGame"])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'Plateformes')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(["getAll"])]
     private ?Game $name = null;
 
     #[ORM\ManyToMany(targetEntity: Game::class, mappedBy: 'plateformes')]
