@@ -5,9 +5,8 @@ namespace App\Entity;
 use App\Repository\PlateformeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-//Serializer groups
-use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: PlateformeRepository::class)]
 class Plateforme
@@ -15,34 +14,77 @@ class Plateforme
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["getAllFromGame"])]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'Plateformes')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Game $name = null;
+    #[ORM\Column(length: 255)]
+    private ?string $namePlateforme = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $createdAt = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $updatedAt = null;
+
+    #[ORM\Column(length: 24)]
+    private ?string $status = null;
 
     #[ORM\ManyToMany(targetEntity: Game::class, mappedBy: 'plateformes')]
-    private Collection $namePlateforme;
+    private Collection $games;
 
     public function __construct()
     {
-        $this->namePlateforme = new ArrayCollection();
+        $this->games = new ArrayCollection();
     }
 
     public function getId(): ?int
     {
         return $this->id;
     }
-    
-    public function getName(): ?Game
+
+    public function getNamePlateforme(): ?string
     {
-        return $this->name;
+        return $this->namePlateforme;
     }
 
-    public function setName(?Game $name): static
+    public function setNamePlateforme(string $namePlateforme): static
     {
-        $this->name = $name;
+        $this->namePlateforme = $namePlateforme;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
 
         return $this;
     }
@@ -50,25 +92,25 @@ class Plateforme
     /**
      * @return Collection<int, Game>
      */
-    public function getNamePlateforme(): Collection
+    public function getGames(): Collection
     {
-        return $this->namePlateforme;
+        return $this->games;
     }
 
-    public function addNamePlateforme(Game $namePlateforme): static
+    public function addGame(Game $game): static
     {
-        if (!$this->namePlateforme->contains($namePlateforme)) {
-            $this->namePlateforme->add($namePlateforme);
-            $namePlateforme->addPlateforme($this);
+        if (!$this->games->contains($game)) {
+            $this->games->add($game);
+            $game->addPlateforme($this);
         }
 
         return $this;
     }
 
-    public function removeNamePlateforme(Game $namePlateforme): static
+    public function removeGame(Game $game): static
     {
-        if ($this->namePlateforme->removeElement($namePlateforme)) {
-            $namePlateforme->removePlateforme($this);
+        if ($this->games->removeElement($game)) {
+            $game->removePlateforme($this);
         }
 
         return $this;

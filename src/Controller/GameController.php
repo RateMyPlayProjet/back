@@ -5,16 +5,13 @@ namespace App\Controller;
 use App\Entity\Game;
 use App\Repository\GameRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\MakerBundle\Validator;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
-use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Security\Http\Attribute\isGranted;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
@@ -30,6 +27,7 @@ class GameController extends AbstractController
         $idCache = "getAllGame";
         $cache->invalidateTags(["gameCache"]);
         $jsonGame= $cache->get($idCache, function(ItemInterface $item) use($repository, $serializer){
+            
             $item->tag("gameCache");
             $games = $repository->findAll();
             return $serializer->serialize($games,'json', ['groups'=> "getAll"]);
@@ -95,7 +93,7 @@ class GameController extends AbstractController
     /** 
      * Update Films with a id
      *
-     * @param Game $films
+     * @param Game $game
      * @param Request $request
      * @param SerializerInterface $serializer
      * @param EntityManagerInterface $entityManager
@@ -141,11 +139,12 @@ class GameController extends AbstractController
         return new JsonResponse(null,JsonResponse::HTTP_NO_CONTENT,[],false);
 
     }
-    /* public function index(): JsonResponse
+    /* #[Route('/game', name: 'app_game')]
+    public function index(): JsonResponse
     {
         return $this->json([
             'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/FilmController.php',
+            'path' => 'src/Controller/GameController.php',
         ]);
     } */
 }

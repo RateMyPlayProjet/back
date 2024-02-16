@@ -9,10 +9,10 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @extends ServiceEntityRepository<Game>
  *
- * @method Game|null find($id, $lockMode = null, $lockVersion = null)
- * @method Game|null findOneBy(array $criteria, array $orderBy = null)
- * @method Game[]    findAll()
- * @method Game[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Games|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Games|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Games[]    findAll()
+ * @method Games[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class GameRepository extends ServiceEntityRepository
 {
@@ -22,7 +22,7 @@ class GameRepository extends ServiceEntityRepository
     }
 
 //    /**
-//     * @return Game[] Returns an array of Game objects
+//     * @return Games[] Returns an array of Games objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -36,7 +36,7 @@ class GameRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?Game
+//    public function findOneBySomeField($value): ?Games
 //    {
 //        return $this->createQueryBuilder('g')
 //            ->andWhere('g.exampleField = :val')

@@ -9,10 +9,10 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @extends ServiceEntityRepository<Plateforme>
  *
- * @method Plateforme|null find($id, $lockMode = null, $lockVersion = null)
- * @method Plateforme|null findOneBy(array $criteria, array $orderBy = null)
- * @method Plateforme[]    findAll()
- * @method Plateforme[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Platforme|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Platforme|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Platforme[]    findAll()
+ * @method Platforme[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class PlateformeRepository extends ServiceEntityRepository
 {
@@ -22,7 +22,7 @@ class PlateformeRepository extends ServiceEntityRepository
     }
 
 //    /**
-//     * @return Plateforme[] Returns an array of Plateforme objects
+//     * @return Platforme[] Returns an array of Platforme objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -36,7 +36,7 @@ class PlateformeRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?Plateforme
+//    public function findOneBySomeField($value): ?Platforme
 //    {
 //        return $this->createQueryBuilder('p')
 //            ->andWhere('p.exampleField = :val')

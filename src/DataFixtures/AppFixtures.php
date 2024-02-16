@@ -96,7 +96,7 @@ class AppFixtures extends Fixture
 
         
         
-        $gamesEntries = [];
+        /* $gamesEntries = [];
         for ($i=0; $i<100; $i++) {
             //Instantiate new Films
             $game = new Game();
@@ -138,7 +138,7 @@ class AppFixtures extends Fixture
             }
         }
         //Execute transaction
-        $manager->flush();
+        $manager->flush(); */
     
     }
 }

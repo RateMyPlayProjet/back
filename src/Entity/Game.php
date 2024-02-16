@@ -3,13 +3,12 @@
 namespace App\Entity;
 
 use App\Repository\GameRepository;
+use App\Repository\GamesRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
-//Serializer groups
-use Symfony\Component\Serializer\Annotation\Groups;
+
 #[ORM\Entity(repositoryClass: GameRepository::class)]
 class Game
 {
@@ -19,24 +18,10 @@ class Game
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(["getAll"])]
-    #[Assert\NotBlank(message:"Un jeu doit avoir un nom")]
-    #[Assert\NotNull(message:"Un jeu doit avoir un nom")]
-    #[Assert\Length(min:2, minMessage:"Le nom du jeu doit forcement faire plus de {{limit}}")]
     private ?string $name = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $status = null;
-
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $createAt = null;
-
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $updateAt = null;
-
-    #[ORM\Column(length: 255)]
-    #[Groups(["getAll"])]
-    private ?string $genre = null;
+    #[ORM\Column(type: Types::ARRAY)]
+    private array $genre = [];
 
     #[ORM\Column(length: 255)]
     private ?string $description = null;
@@ -44,16 +29,25 @@ class Game
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $dateSortie = null;
 
-    #[ORM\Column]
-    private ?int $nbJoueurs = null;
+    #[ORM\Column(length: 24)]
+    private ?string $status = null;
 
-    #[ORM\ManyToMany(targetEntity: Plateforme::class, inversedBy: 'namePlateforme')]
-    #[Groups(["getAll"])]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $createdAt = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $updatedAt = null;
+
+    #[ORM\ManyToMany(targetEntity: Plateforme::class, inversedBy: 'games')]
     private Collection $plateformes;
+
+    #[ORM\OneToMany(mappedBy: 'game', targetEntity: Avis::class)]
+    private Collection $avis;
 
     public function __construct()
     {
         $this->plateformes = new ArrayCollection();
+        $this->avis = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -73,48 +67,12 @@ class Game
         return $this;
     }
 
-    public function getStatus(): ?string
-    {
-        return $this->status;
-    }
-
-    public function setStatus(string $status): static
-    {
-        $this->status = $status;
-
-        return $this;
-    }
-
-    public function getCreateAt(): ?\DateTimeInterface
-    {
-        return $this->createAt;
-    }
-
-    public function setCreateAt(\DateTimeInterface $createAt): static
-    {
-        $this->createAt = $createAt;
-
-        return $this;
-    }
-
-    public function getUpdateAt(): ?\DateTimeInterface
-    {
-        return $this->updateAt;
-    }
-
-    public function setUpdateAt(\DateTimeInterface $updateAt): static
-    {
-        $this->updateAt = $updateAt;
-
-        return $this;
-    }
-
-    public function getGenre(): ?string
+    public function getGenre(): array
     {
         return $this->genre;
     }
 
-    public function setGenre(string $genre): static
+    public function setGenre(array $genre): static
     {
         $this->genre = $genre;
 
@@ -145,14 +103,38 @@ class Game
         return $this;
     }
 
-    public function getNbJoueurs(): ?int
+    public function getStatus(): ?string
     {
-        return $this->nbJoueurs;
+        return $this->status;
     }
 
-    public function setNbJoueurs(int $nbJoueurs): static
+    public function setStatus(string $status): static
     {
-        $this->nbJoueurs = $nbJoueurs;
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
 
         return $this;
     }
@@ -177,6 +159,36 @@ class Game
     public function removePlateforme(Plateforme $plateforme): static
     {
         $this->plateformes->removeElement($plateforme);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Avis>
+     */
+    public function getAvis(): Collection
+    {
+        return $this->avis;
+    }
+
+    public function addAvis(Avis $avis): static
+    {
+        if (!$this->avis->contains($avis)) {
+            $this->avis->add($avis);
+            $avis->setGame($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAvis(Avis $avis): static
+    {
+        if ($this->avis->removeElement($avis)) {
+            // set the owning side to null (unless already changed)
+            if ($avis->getGame() === $this) {
+                $avis->setGame(null);
+            }
+        }
 
         return $this;
     }
