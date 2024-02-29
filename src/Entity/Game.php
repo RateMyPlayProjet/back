@@ -44,10 +44,17 @@ class Game
     #[ORM\OneToMany(mappedBy: 'game', targetEntity: Avis::class)]
     private Collection $avis;
 
+    #[ORM\Column(length: 255)]
+    private ?string $nbJoueurs = null;
+
+    #[ORM\OneToMany(mappedBy: 'game', targetEntity: Notice::class)]
+    private Collection $notices;
+
     public function __construct()
     {
         $this->plateformes = new ArrayCollection();
         $this->avis = new ArrayCollection();
+        $this->notices = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -187,6 +194,48 @@ class Game
             // set the owning side to null (unless already changed)
             if ($avis->getGame() === $this) {
                 $avis->setGame(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getNbJoueurs(): ?string
+    {
+        return $this->nbJoueurs;
+    }
+
+    public function setNbJoueurs(string $nbJoueurs): static
+    {
+        $this->nbJoueurs = $nbJoueurs;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Notice>
+     */
+    public function getNotices(): Collection
+    {
+        return $this->notices;
+    }
+
+    public function addNotice(Notice $notice): static
+    {
+        if (!$this->notices->contains($notice)) {
+            $this->notices->add($notice);
+            $notice->setGame($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNotice(Notice $notice): static
+    {
+        if ($this->notices->removeElement($notice)) {
+            // set the owning side to null (unless already changed)
+            if ($notice->getGame() === $this) {
+                $notice->setGame(null);
             }
         }
 

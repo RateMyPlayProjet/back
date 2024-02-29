@@ -2,14 +2,15 @@
 
 namespace App\DataFixtures;
 
+use Faker\Factory;
+use App\Entity\Avis;
 use App\Entity\Game;
+use App\Entity\User;
+use Faker\Generator;
 use App\Entity\Persona;
 use App\Entity\Plateforme;
-use App\Entity\User;
-use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
-use Faker\Factory;
-use Faker\Generator;
+use Doctrine\Bundle\FixturesBundle\Fixture;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
@@ -34,29 +35,30 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager): void 
     {
         $personas = [];
-            for ($i=0; $i < 10; $i++) { 
+        for ($i=0; $i < 5; $i++) { 
             $gender = random_int( 0, 1);
-        $genderStr = $gender ? 'male' : "female";
-        $persona = new Persona();
-        $birthdateStart =  new \DateTime("01/01/1980");
-        $birthdateEnd = new \DateTime("01/01/2000");
-        $birthDate = $this->faker->dateTimeBetween($birthdateStart,$birthdateEnd);
-           $created = $this->faker->dateTimeBetween("-1 week", "now");
+            $genderStr = $gender ? 'male' : "female";
+            $persona = new Persona();
+            $birthdateStart =  new \DateTime("01/01/1980");
+            $birthdateEnd = new \DateTime("01/01/2000");
+            $birthDate = $this->faker->dateTimeBetween($birthdateStart,$birthdateEnd);
+            $created = $this->faker->dateTimeBetween("-1 week", "now");
             $updated = $this->faker->dateTimeBetween($created, "now");
-        $persona
-        ->setPhone($this->faker->e164PhoneNumber())
-        ->setGender($gender)
-        ->setName($this->faker->lastName($genderStr))
-        ->setSurname($this->faker->firstName($genderStr))
-        ->setEmail($this->faker->email())
-        ->setBirthdate( $birthDate)
-        ->setAnonymous(false)
-        ->setStatus("on")
-        ->setCreatedAt($created)
-        ->setUpdatedAt($updated);
+            
+            $persona
+            ->setPhone($this->faker->e164PhoneNumber())
+            ->setGender($gender)
+            ->setName($this->faker->lastName($genderStr))
+            ->setSurname($this->faker->firstName($genderStr))
+            ->setEmail($this->faker->email())
+            ->setBirthdate( $birthDate)
+            ->setAnonymous(false)
+            ->setStatus("on")
+            ->setCreatedAt($created)
+            ->setUpdatedAt($updated);
 
-        $manager->persist($persona);
-        $personas[] = $persona;
+            $manager->persist($persona);
+            $personas[] = $persona;
         }
 
         $users = [];
@@ -83,7 +85,7 @@ class AppFixtures extends Fixture
             $users[] = $userUser;
         }
 
-            // Admins
+        // Admins
         $adminUser = new User();
         $adminUser->setUsername("admin");
         $adminUser->setRoles(["ADMIN"]);
@@ -92,12 +94,9 @@ class AppFixtures extends Fixture
         $manager->persist($adminUser);
         $users[] = $adminUser;
 
-            
 
-        
-        
-        /* $gamesEntries = [];
-        for ($i=0; $i<100; $i++) {
+        $gamesEntries = [];
+        for ($i=0; $i<5; $i++) {
             //Instantiate new Films
             $game = new Game();
             //Handle created && updated datetime
@@ -106,13 +105,13 @@ class AppFixtures extends Fixture
 
             //Asign Properties to Entity
             $game->setName($this->faker->name())
-            ->setGenre($this->faker->word())
+            ->setGenre(["Horreur","Fantastic","Aventure"])
             ->setDescription($this->faker->word())
             ->setDateSortie($updated)
             ->setStatus("on")
-            ->setCreateAt($created)
-            ->setNbJoueurs($this->faker->numberBetween(1,10))
-            ->setUpdateAt($updated);
+            ->setCreatedAt($created)
+            ->setNbJoueurs("De 1 à 2 joueurs")
+            ->setUpdatedAt($updated);
 
 
             //stock Game entry
@@ -122,23 +121,45 @@ class AppFixtures extends Fixture
             $manager->persist($game);
 
             $plateformes = [];
-            for ($j= 0; $j< 100; $j++) {
+            for ($j= 0; $j< 5; $j++) {
                 $plateforme = new Plateforme();
-                $plateforme->setName($game);
+                $plateforme->setNamePlateforme('PS5');
+                $plateforme->setCreatedAt($created);
+                $plateforme->setUpdatedAt($updated);
+                $plateforme->setStatus("on");
                 $plateformes[] = $plateforme;
                 $manager->persist($plateforme);
             }
+
+            //Avis
+            for ($i = 0; $i < 5; $i++) {
+                $avis = new Avis();
+                $avis->setCommentaire($this->faker->sentence(3));
+                $avis-> setNote(4);
+                $avis->setUserCommentaire($users[array_rand($users, 1)]);
+                $avis->setGame($gamesEntries[array_rand($gamesEntries, 1)]);
+
+                $manager->persist($avis);
+                $aviss[] = $avis;
+            }  
             
 
             foreach ($gamesEntries as $key => $gameEntry) {
                 $plateformesID = $plateformes[array_rand($plateformes,1)];
+                $avisId = $aviss[array_rand($aviss,1)];
                 $gameEntry->addPlateforme($plateformesID);
+                $gameEntry->addAvis($avisId);
                 $manager->persist($gameEntry);
             
             }
         }
+
+        
+        
+        
+        
         //Execute transaction
-        $manager->flush(); */
+        $manager->flush();
     
     }
 }

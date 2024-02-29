@@ -3,10 +3,9 @@
 namespace App\Entity;
 
 use App\Repository\PlateformeRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: PlateformeRepository::class)]
 class Plateforme
@@ -14,9 +13,11 @@ class Plateforme
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(["getAll"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(["getAll"])]
     private ?string $namePlateforme = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
@@ -27,14 +28,6 @@ class Plateforme
 
     #[ORM\Column(length: 24)]
     private ?string $status = null;
-
-    #[ORM\ManyToMany(targetEntity: Game::class, mappedBy: 'plateformes')]
-    private Collection $games;
-
-    public function __construct()
-    {
-        $this->games = new ArrayCollection();
-    }
 
     public function getId(): ?int
     {
@@ -85,33 +78,6 @@ class Plateforme
     public function setStatus(string $status): static
     {
         $this->status = $status;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Game>
-     */
-    public function getGames(): Collection
-    {
-        return $this->games;
-    }
-
-    public function addGame(Game $game): static
-    {
-        if (!$this->games->contains($game)) {
-            $this->games->add($game);
-            $game->addPlateforme($this);
-        }
-
-        return $this;
-    }
-
-    public function removeGame(Game $game): static
-    {
-        if ($this->games->removeElement($game)) {
-            $game->removePlateforme($this);
-        }
 
         return $this;
     }
