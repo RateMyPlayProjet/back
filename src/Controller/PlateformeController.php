@@ -39,9 +39,9 @@ class PlateformeController extends AbstractController
         $plateforme = $serializer->deserialize($request->getContent(), Plateforme::class,'json');
         $dateNow = new \DateTime();
 
-        $game = $request->toArray()['games'];
-        if(!is_null($game) && $game instanceof Game) {
-            $plateforme->addGame($game);
+        $plateformes = $request->toArray()['games'];
+        if(!is_null($plateformes) && $plateformes instanceof Game) {
+            $plateforme->addGame($plateformes);
         }
         
         $plateforme
@@ -49,18 +49,18 @@ class PlateformeController extends AbstractController
         ->setCreatedAt($dateNow)
         ->setUpdatedAt($dateNow);
 
-        $errors = $validator->validate($game);
+        $errors = $validator->validate($plateformes);
         if($errors ->count() > 0){
             return new JsonResponse($serializer->serialize($errors,'json'),JsonResponse::HTTP_BAD_REQUEST,[],true);
         }
         
-        $entityManager->persist($game);
+        $entityManager->persist($plateformes);
         $entityManager->flush();
         $cache->invalidateTags(["gameCache"]);
 
-        $jsonGame= $serializer->serialize($game,'json');
+        $jsonGame= $serializer->serialize($plateformes,'json');
 
-        $location = $urlGenerator->generate('game.get', ['idGame'=> $game->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+        $location = $urlGenerator->generate('game.get', ['idGame'=> $plateformes->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
 
         return new JsonResponse($jsonGame,Response::HTTP_CREATED,["Location" => $location],true);
     }
@@ -78,7 +78,7 @@ class PlateformeController extends AbstractController
     #[Route('/api/plateforme/{idPlateforme}', name: 'plateforme.update', methods: ['PUT'])]
     public function updateGame(Plateforme $plateforme, Request $request,  SerializerInterface $serializer, EntityManagerInterface $entityManager, TagAwareCacheInterface $cache): JsonResponse{
 
-        $updatedPlateforme = $serializer->deserialize($request->getContent(), Game::class,'json', [AbstractNormalizer::OBJECT_TO_POPULATE =>$plateforme]);
+        $updatedPlateforme = $serializer->deserialize($request->getContent(), Plateforme::class,'json', [AbstractNormalizer::OBJECT_TO_POPULATE =>$plateforme]);
         $updatedPlateforme->setUpdateAt(new \DateTime());
         $entityManager->persist($updatedPlateforme);
         $entityManager->flush();

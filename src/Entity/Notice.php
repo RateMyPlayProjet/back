@@ -2,8 +2,9 @@
 
 namespace App\Entity;
 
-use App\Repository\NoticeRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\NoticeRepository;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: NoticeRepository::class)]
 class Notice
@@ -14,13 +15,18 @@ class Notice
     private ?int $id = null;
 
     #[ORM\Column(length: 500)]
+    #[Groups(["getAll"])]
     private ?string $comment = null;
 
     #[ORM\Column]
+    #[Groups(["getAll"])]
     private ?int $note = null;
 
     #[ORM\ManyToOne(inversedBy: 'notices')]
     private ?Game $game = null;
+
+    #[ORM\ManyToOne(inversedBy: 'notice')]
+    private ?User $user = null;
 
     public function getId(): ?int
     {
@@ -59,6 +65,18 @@ class Notice
     public function setGame(?Game $game): static
     {
         $this->game = $game;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
 
         return $this;
     }

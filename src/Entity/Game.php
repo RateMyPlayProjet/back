@@ -41,8 +41,6 @@ class Game
     #[ORM\ManyToMany(targetEntity: Plateforme::class, inversedBy: 'games')]
     private Collection $plateformes;
 
-    #[ORM\OneToMany(mappedBy: 'game', targetEntity: Avis::class)]
-    private Collection $avis;
 
     #[ORM\Column(length: 255)]
     private ?string $nbJoueurs = null;
@@ -53,7 +51,6 @@ class Game
     public function __construct()
     {
         $this->plateformes = new ArrayCollection();
-        $this->avis = new ArrayCollection();
         $this->notices = new ArrayCollection();
     }
 
@@ -166,36 +163,6 @@ class Game
     public function removePlateforme(Plateforme $plateforme): static
     {
         $this->plateformes->removeElement($plateforme);
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Avis>
-     */
-    public function getAvis(): Collection
-    {
-        return $this->avis;
-    }
-
-    public function addAvis(Avis $avis): static
-    {
-        if (!$this->avis->contains($avis)) {
-            $this->avis->add($avis);
-            $avis->setGame($this);
-        }
-
-        return $this;
-    }
-
-    public function removeAvis(Avis $avis): static
-    {
-        if ($this->avis->removeElement($avis)) {
-            // set the owning side to null (unless already changed)
-            if ($avis->getGame() === $this) {
-                $avis->setGame(null);
-            }
-        }
 
         return $this;
     }

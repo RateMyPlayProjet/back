@@ -36,9 +36,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'userCommentaire', targetEntity: Avis::class)]
     private Collection $avis;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Notice::class)]
+    private Collection $notice;
+
     public function __construct()
     {
         $this->avis = new ArrayCollection();
+        $this->notice = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -147,6 +151,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($avi->getUserCommentaire() === $this) {
                 $avi->setUserCommentaire(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Notice>
+     */
+    public function getNotice(): Collection
+    {
+        return $this->notice;
+    }
+
+    public function addNotice(Notice $notice): static
+    {
+        if (!$this->notice->contains($notice)) {
+            $this->notice->add($notice);
+            $notice->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNotice(Notice $notice): static
+    {
+        if ($this->notice->removeElement($notice)) {
+            // set the owning side to null (unless already changed)
+            if ($notice->getUser() === $this) {
+                $notice->setUser(null);
             }
         }
 
