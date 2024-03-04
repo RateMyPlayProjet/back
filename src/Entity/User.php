@@ -33,15 +33,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\JoinColumn(nullable: false)]
     private ?Persona $persona = null;
 
-    #[ORM\OneToMany(mappedBy: 'userCommentaire', targetEntity: Avis::class)]
-    private Collection $avis;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Notice::class)]
     private Collection $notice;
 
     public function __construct()
     {
-        $this->avis = new ArrayCollection();
         $this->notice = new ArrayCollection();
     }
 
@@ -123,36 +120,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPersona(?Persona $persona): static
     {
         $this->persona = $persona;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Avis>
-     */
-    public function getAvis(): Collection
-    {
-        return $this->avis;
-    }
-
-    public function addAvi(Avis $avi): static
-    {
-        if (!$this->avis->contains($avi)) {
-            $this->avis->add($avi);
-            $avi->setUserCommentaire($this);
-        }
-
-        return $this;
-    }
-
-    public function removeAvi(Avis $avi): static
-    {
-        if ($this->avis->removeElement($avi)) {
-            // set the owning side to null (unless already changed)
-            if ($avi->getUserCommentaire() === $this) {
-                $avi->setUserCommentaire(null);
-            }
-        }
 
         return $this;
     }
