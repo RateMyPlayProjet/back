@@ -5,6 +5,7 @@ namespace App\DataFixtures;
 use Faker\Factory;
 use App\Entity\Avis;
 use App\Entity\Game;
+use App\Entity\Notice;
 use App\Entity\User;
 use Faker\Generator;
 use App\Entity\Persona;
@@ -133,10 +134,10 @@ class AppFixtures extends Fixture
 
             //Avis
             for ($i = 0; $i < 5; $i++) {
-                $avis = new Avis();
-                $avis->setCommentaire($this->faker->sentence(3));
+                $avis = new Notice();
+                $avis->setComment($this->faker->sentence(3));
                 $avis-> setNote(4);
-                $avis->setUserCommentaire($users[array_rand($users, 1)]);
+                $avis->setUser($users[array_rand($users, 1)]);
                 $avis->setGame($gamesEntries[array_rand($gamesEntries, 1)]);
 
                 $manager->persist($avis);
@@ -148,7 +149,7 @@ class AppFixtures extends Fixture
                 $plateformesID = $plateformes[array_rand($plateformes,1)];
                 $avisId = $aviss[array_rand($aviss,1)];
                 $gameEntry->addPlateforme($plateformesID);
-                $gameEntry->addAvis($avisId);
+                $gameEntry->addNotice($avisId);
                 $manager->persist($gameEntry);
             
             }

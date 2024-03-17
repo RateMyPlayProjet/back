@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Game;
+use OpenApi\Attributes as OA;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use App\Repository\GameRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -12,25 +14,41 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Component\Serializer\SerializerInterface;
+use Doctrine\Common\Annotations\Annotation\Attributes;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class GameController extends AbstractController
 {
+    /**
+     * Renvoie tous les jeux
+     *
+     * @param GameRepository $repository
+     * @param SerializerInterface $serializer
+     * @param TagAwareCacheInterface $cache
+     * @return JsonResponse
+     */
+    #[OA\Response(
+        response:200,
+        description: "Retourne la liste des jeux",
+        content: new OA\JsonContent(
+            type: "array",
+            items: new OA\Items(ref: new Model(type:Game::class))
+        )
+    )]
     #[Route('/api/game', name: 'game.getAll', methods: ['GET'])]
-    /* #[IsGranted('IS_AUTHENTICATED_FULLY')] */
-    public function getAllGame(GameRepository $repository, SerializerInterface $serializer, TagAwareCacheInterface $cache): JsonResponse{
+    public function getAllGames(GameRepository $repository, SerializerInterface $serializer, TagAwareCacheInterface $cache): JsonResponse{
         
-        $idCache = "getAllGame";
+        $idCache = "getAllGames";
         $cache->invalidateTags(["gameCache"]);
         $jsonGame= $cache->get($idCache, function(ItemInterface $item) use($repository, $serializer){
             
             $item->tag("gameCache");
             $games = $repository->findAll();
-            return $serializer->serialize($games,'json', ['groups'=> "getAll"]);
+            return $serializer->serialize($games,'json', ['groups'=> "getAllGames"]);
         });
         
         return new JsonResponse($jsonGame,200,[],true);

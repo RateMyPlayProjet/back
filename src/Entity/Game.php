@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: GameRepository::class)]
 class Game
@@ -18,15 +19,19 @@ class Game
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(["getAllGames"])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::ARRAY)]
+    #[Groups(["getAllGames"])]
     private array $genre = [];
 
     #[ORM\Column(length: 255)]
+    #[Groups(["getAllGames"])]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Groups(["getAllGames"])]
     private ?\DateTimeInterface $dateSortie = null;
 
     #[ORM\Column(length: 24)]
@@ -39,13 +44,16 @@ class Game
     private ?\DateTimeInterface $updatedAt = null;
 
     #[ORM\ManyToMany(targetEntity: Plateforme::class, inversedBy: 'games')]
+    #[Groups(["getAllGames"])]
     private Collection $plateformes;
 
 
     #[ORM\Column(length: 255)]
+    #[Groups(["getAllGames"])]
     private ?string $nbJoueurs = null;
 
     #[ORM\OneToMany(mappedBy: 'game', targetEntity: Notice::class)]
+    #[Groups(["getAllGames"])]
     private Collection $notices;
 
     public function __construct()
