@@ -12,20 +12,23 @@ class Notice
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(["getAllNotices"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 500)]
-    #[Groups(["getAll"])]
+    #[Groups(["getAllNotices"])]
     private ?string $comment = null;
 
     #[ORM\Column]
-    #[Groups(["getAll"])]
+    #[Groups(["getAllNotices"])]
     private ?int $note = null;
 
     #[ORM\ManyToOne(inversedBy: 'notices')]
+    #[Groups(["getAllNotices"])]
     private ?Game $game = null;
 
     #[ORM\ManyToOne(inversedBy: 'notice')]
+    #[Groups(["getAllNotices"])]
     private ?User $user = null;
 
     public function getId(): ?int

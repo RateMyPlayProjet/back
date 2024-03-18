@@ -59,7 +59,7 @@ class GameController extends AbstractController
     
     public function getGame(Game $game, SerializerInterface $serializer): JsonResponse{
        /*  $repository->findByStatus("on", $idGame); */
-        $jsonGame= $serializer->serialize($game,'json', ['groups'=> "getAll"]);
+        $jsonGame= $serializer->serialize($game,'json', ['groups'=> "getAllGames"]);
         return new JsonResponse($jsonGame,200,[],true);
         /* dd($films);//equivalent de console.log */
     }

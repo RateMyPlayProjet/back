@@ -97,16 +97,19 @@ class AppFixtures extends Fixture
 
 
         $gamesEntries = [];
-        for ($i=0; $i<5; $i++) {
-            //Instantiate new Films
-            $game = new Game();
-            //Handle created && updated datetime
-            $created = $this->faker->dateTimeBetween("-1 week","now");
-            $updated = $this->faker->dateTimeBetween($created,"now");
+        $plateformesEntries = [];
+        $noticesEntries = [];
 
-            //Asign Properties to Entity
-            $game->setName($this->faker->name())
-            ->setGenre(["Horreur","Fantastic","Aventure"])
+        for ($i = 0; $i < 10; $i++) {
+        // Instancier un nouveau jeu
+        $game = new Game();
+        // Gérer les dates de création et de mise à jour
+        $created = $this->faker->dateTimeBetween("-1 week", "now");
+        $updated = $this->faker->dateTimeBetween($created, "now");
+
+        // Assigner les propriétés à l'entité
+        $game->setName($this->faker->name())
+            ->setGenre(["Horreur", "Fantastic", "Aventure"])
             ->setDescription($this->faker->word())
             ->setDateSortie($updated)
             ->setStatus("on")
@@ -114,46 +117,48 @@ class AppFixtures extends Fixture
             ->setNbJoueurs("De 1 à 2 joueurs")
             ->setUpdatedAt($updated);
 
+        // Ajouter le jeu à la liste
+        $gamesEntries[] = $game;
 
-            //stock Game entry
-            $gamesEntries[] = $game;
-            
-            //Add to transaction
-            $manager->persist($game);
+        // Ajouter à la transaction
+        $manager->persist($game);
 
-            $plateformes = [];
-            for ($j= 0; $j< 5; $j++) {
-                $plateforme = new Plateforme();
-                $plateforme->setNamePlateforme('PS5');
-                $plateforme->setCreatedAt($created);
-                $plateforme->setUpdatedAt($updated);
-                $plateforme->setStatus("on");
-                $plateformes[] = $plateforme;
-                $manager->persist($plateforme);
-            }
-
-            //Avis
-            for ($i = 0; $i < 5; $i++) {
-                $avis = new Notice();
-                $avis->setComment($this->faker->sentence(3));
-                $avis-> setNote(4);
-                $avis->setUser($users[array_rand($users, 1)]);
-                $avis->setGame($gamesEntries[array_rand($gamesEntries, 1)]);
-
-                $manager->persist($avis);
-                $aviss[] = $avis;
-            }  
-            
-
-            foreach ($gamesEntries as $key => $gameEntry) {
-                $plateformesID = $plateformes[array_rand($plateformes,1)];
-                $avisId = $aviss[array_rand($aviss,1)];
-                $gameEntry->addPlateforme($plateformesID);
-                $gameEntry->addNotice($avisId);
-                $manager->persist($gameEntry);
-            
-            }
+        // Créer les plateformes
+        for ($j = 0; $j < 5; $j++) {
+            $plateforme = new Plateforme();
+            $plateforme->setNamePlateforme('PS5');
+            $plateforme->setCreatedAt($created);
+            $plateforme->setUpdatedAt($updated);
+            $plateforme->setStatus("on");
+            $plateformesEntries[] = $plateforme;
+            $manager->persist($plateforme);
         }
+
+    // Créer les avis
+    for ($k = 0; $k < 10; $k++) {
+        $avis = new Notice();
+        $avis->setComment($this->faker->sentence(3));
+        $avis->setNote(4);
+        $avis->setUser($users[array_rand($users, 1)]);
+        $avis->setGame($game);
+
+        $noticesEntries[] = $avis;
+        $manager->persist($avis);
+    }
+}
+
+    // Associer les plateformes et les avis à chaque jeu
+    foreach ($gamesEntries as $gameEntry) {
+        $plateforme = $plateformesEntries[array_rand($plateformesEntries)];
+        $avis = $noticesEntries[array_rand($noticesEntries)];
+        $gameEntry->addPlateforme($plateforme);
+        $gameEntry->addNotice($avis);
+        $manager->persist($gameEntry);
+    }
+
+    // Flush des données
+    $manager->flush();
+
 
         
         
