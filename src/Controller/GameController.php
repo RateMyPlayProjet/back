@@ -77,7 +77,7 @@ class GameController extends AbstractController
     public function createGame(Request $request,  SerializerInterface $serializer, EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator, ValidatorInterface $validator, TagAwareCacheInterface $cache): JsonResponse{
         $game = $serializer->deserialize($request->getContent(), Game::class,'json');
         $dateNow = new \DateTime();
-        
+
         $plateforme = $request->toArray()["plateformes"];
         /* dd($plateformes); */
         if(!is_null($plateforme) && $plateforme instanceof Game){
