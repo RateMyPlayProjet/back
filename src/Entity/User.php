@@ -38,6 +38,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Notice::class)]
     private Collection $notice;
 
+    #[ORM\OneToOne(inversedBy: 'user', cascade: ['persist', 'remove'])]
+    #[Groups(["getAllNotices"])]
+    private ?Picture $picture = null;
+
     public function __construct()
     {
         $this->notice = new ArrayCollection();
@@ -151,6 +155,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $notice->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPicture(): ?Picture
+    {
+        return $this->picture;
+    }
+
+    public function setPicture(?Picture $picture): static
+    {
+        $this->picture = $picture;
 
         return $this;
     }

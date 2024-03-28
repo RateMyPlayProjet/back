@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Game;
 use App\Entity\Picture;
+use App\Entity\User;
 use App\Repository\PictureRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,13 +33,21 @@ class PictureController extends AbstractController
     public function getPicture(PictureRepository $repository, int $idPicture, UrlGeneratorInterface $urlGenerator, SerializerInterface $serializer):JsonResponse{
         $picture = $repository->find($idPicture);
 
+        if(!$picture) {
+            return new JsonResponse(null, Response::HTTP_NOT_FOUND);
+        }
+
+        // Exclure les propriétés causant la référence circulaire lors de la sérialisation
+        $context = [
+            AbstractNormalizer::IGNORED_ATTRIBUTES => ['game', 'notices']
+        ];
+
         $location = $urlGenerator->generate('app_picture',[], UrlGeneratorInterface::ABSOLUTE_URL);
         $location = $location . str_replace('/public/', "", $picture->getPublicPath())."/".$picture->getRealPath();
 
-        return $picture ?
-        new JsonResponse($serializer->serialize($picture,'json'), Response::HTTP_OK, ["Location" => $location],true) :
-        new JsonResponse(null, Response::HTTP_NOT_FOUND);
+        return new JsonResponse($serializer->serialize($picture,'json', $context), Response::HTTP_OK, ["Location" => $location],true);
     }
+
     #[Route('/api/picture', name:'picture.create', methods: ['POST'])]
     public function createPicture(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator): JsonResponse {
         $picture = new Picture();
@@ -62,8 +71,8 @@ class PictureController extends AbstractController
         return new JsonResponse($jsonResponse, Response::HTTP_CREATED, ['Location' => $location], true);
     }
 
-    #[Route('/api/picture/{id}', name: 'picture.update', methods: ['PUT'])]
-    public function updatePicture(Picture $picture, Request $request,  SerializerInterface $serializer, EntityManagerInterface $entityManager, TagAwareCacheInterface $cache): JsonResponse{
+    #[Route('/api/picture/game/{id}', name: 'picture.update', methods: ['PUT'])]
+    public function updatePictureByIdForGame(Picture $picture, Request $request,  SerializerInterface $serializer, EntityManagerInterface $entityManager, TagAwareCacheInterface $cache): JsonResponse{
 
         // Récupérer l'identifiant du jeu à partir du corps de la requête
         $data = json_decode($request->getContent(), true);
@@ -83,6 +92,37 @@ class PictureController extends AbstractController
         ]);
         $updatedPicture->setUpdateAt(new \DateTime());
         $updatedPicture->setGame($game);
+
+        // Enregistrer les modifications dans la base de données
+        $entityManager->flush();
+
+        // Invalider le cache
+        $cache->invalidateTags(["pictureCache"]);
+
+        return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT, [], false);
+    }
+
+    #[Route('/api/picture/user/{id}', name: 'picture.update', methods: ['PUT'])]
+    public function updatePictureByIdForUser(Picture $picture, Request $request,  SerializerInterface $serializer, EntityManagerInterface $entityManager, TagAwareCacheInterface $cache): JsonResponse{
+
+        // Récupérer l'identifiant du jeu à partir du corps de la requête
+        $data = json_decode($request->getContent(), true);
+        $userId = $data['user_id'];
+
+        // Récupérer le jeu correspondant à l'identifiant
+        $user = $entityManager->getRepository(User::class)->find($userId);
+
+        // Vérifier si le jeu existe
+        if (!$user) {
+            return new JsonResponse(['message' => 'User not found'], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        // Mettre à jour l'image avec le jeu associé
+        $updatedPicture = $serializer->deserialize($request->getContent(), Picture::class, 'json', [
+            AbstractNormalizer::OBJECT_TO_POPULATE => $picture
+        ]);
+        $updatedPicture->setUpdateAt(new \DateTime());
+        $updatedPicture->setUser($user);
 
         // Enregistrer les modifications dans la base de données
         $entityManager->flush();

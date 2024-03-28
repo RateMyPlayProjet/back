@@ -21,7 +21,7 @@ class Picture
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(["getAllGames"])]
+    #[Groups(["getAllGames", "getAllNotices"])]
     private ?string $realName = null;
 
     #[ORM\Column(length: 255)]
@@ -53,6 +53,10 @@ class Picture
 
     #[ORM\ManyToOne(inversedBy: 'pictures')]
     private ?Game $game = null;
+
+    #[ORM\OneToOne(mappedBy: 'picture', cascade: ['persist', 'remove'])]
+    #[Groups(["exclude"])]
+    private ?User $user = null;
 
     public function getId(): ?int
     {
@@ -172,6 +176,28 @@ class Picture
     public function setGame(?Game $game): static
     {
         $this->game = $game;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($user === null && $this->user !== null) {
+            $this->user->setPicture(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($user !== null && $user->getPicture() !== $this) {
+            $user->setPicture($this);
+        }
+
+        $this->user = $user;
 
         return $this;
     }
