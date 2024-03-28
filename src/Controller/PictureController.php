@@ -3,8 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Game;
-use App\Entity\Picture;
 use App\Entity\User;
+use App\Entity\Picture;
 use App\Repository\PictureRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,6 +30,42 @@ class PictureController extends AbstractController
         ]);
     }
 
+    #[Route('/api/picture', name:"picture.getAll", methods:['GET'])]
+    public function getAllPictures(PictureRepository $repository, SerializerInterface $serializer): JsonResponse
+    {
+        $pictures = $repository->findAll();
+
+        if (empty($pictures)) {
+            return new JsonResponse(null, Response::HTTP_NOT_FOUND);
+        }
+
+        // Exclure les propriétés causant la référence circulaire lors de la sérialisation
+        $context = [
+            AbstractNormalizer::IGNORED_ATTRIBUTES => ['game', 'notices', 'user']
+        ];
+
+        // Serialize the pictures into JSON
+        $serializedPictures = $serializer->serialize($pictures, 'json', $context);
+
+        return new JsonResponse($serializedPictures, Response::HTTP_OK, [], true);
+    }
+
+    #[Route('/api/images/{filename}', name: 'get_image', methods: ['GET'])]
+    public function getImage(string $filename): BinaryFileResponse
+    {
+        // Récupérez le chemin complet vers le fichier d'image
+        $filePath ='/var/www/html/symfony/projetFullStack/public/medias/pictures/' . $filename;
+        /* dd($filePath); */
+
+        // Vérifiez si le fichier existe
+        if (!file_exists($filePath)) {
+            throw $this->createNotFoundException('Image not found');
+        }
+
+        // Renvoyez le fichier d'image en tant que réponse binaire
+        return new BinaryFileResponse($filePath);
+    }
+
     #[Route('/api/picture/{idPicture}', name:"picture.get", methods:['GET'])]
     public function getPicture(PictureRepository $repository, int $idPicture, UrlGeneratorInterface $urlGenerator, SerializerInterface $serializer):JsonResponse{
         $picture = $repository->find($idPicture);
@@ -39,7 +76,7 @@ class PictureController extends AbstractController
 
         // Exclure les propriétés causant la référence circulaire lors de la sérialisation
         $context = [
-            AbstractNormalizer::IGNORED_ATTRIBUTES => ['game', 'notices']
+            AbstractNormalizer::IGNORED_ATTRIBUTES => ['game', 'notices', 'user']
         ];
 
         $location = $urlGenerator->generate('app_picture',[], UrlGeneratorInterface::ABSOLUTE_URL);

@@ -144,6 +144,8 @@ class AppFixtures extends Fixture
         $avis->setNote(4);
         $avis->setUser($users[array_rand($users, 1)]);
         $avis->setGame($game);
+        $avis->setCreateAt($created);
+        $avis->setUpdateAt($updated);
 
         $noticesEntries[] = $avis;
         $manager->persist($avis);

@@ -25,11 +25,11 @@ class Picture
     private ?string $realName = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(["getAllGames"])]
+    #[Groups(["getAllGames","getAllNotices"])]
     private ?string $realPath = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(["getAllGames"])]
+    #[Groups(["getAllGames", "getAllNotices"])]
     private ?string $publicPath = null;
 
     #[ORM\Column(length: 255)]
@@ -46,6 +46,7 @@ class Picture
 
 
     #[Vich\UploadableField(mapping: "pictures", fileNameProperty:"realpath")]
+    #[Groups(["getAllGames"])]
     private $file;
 
     #[ORM\Column(length: 255)]

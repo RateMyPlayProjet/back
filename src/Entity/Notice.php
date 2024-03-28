@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\NoticeRepository;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -30,6 +31,13 @@ class Notice
     #[ORM\ManyToOne(inversedBy: 'notice')]
     #[Groups(["getAllNotices","getAllGames"])]
     private ?User $user = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Groups(["getAllNotices","getAllGames"])]
+    private ?\DateTimeInterface $createAt = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $updateAt = null;
 
     public function getId(): ?int
     {
@@ -80,6 +88,30 @@ class Notice
     public function setUser(?User $user): static
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function getCreateAt(): ?\DateTimeInterface
+    {
+        return $this->createAt;
+    }
+
+    public function setCreateAt(\DateTimeInterface $createAt): static
+    {
+        $this->createAt = $createAt;
+
+        return $this;
+    }
+
+    public function getUpdateAt(): ?\DateTimeInterface
+    {
+        return $this->updateAt;
+    }
+
+    public function setUpdateAt(\DateTimeInterface $updateAt): static
+    {
+        $this->updateAt = $updateAt;
 
         return $this;
     }
