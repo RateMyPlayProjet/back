@@ -19,7 +19,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
-    #[Groups(["getAllNotices"])]
+    #[Groups(["getAllNotices", "getAllGames"])]
     private ?string $username = null;
 
     #[ORM\Column]
@@ -39,7 +39,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $notice;
 
     #[ORM\OneToOne(inversedBy: 'user', cascade: ['persist', 'remove'])]
-    #[Groups(["getAllNotices"])]
+    #[Groups(["getAllNotices", "getAllGames"])]
     private ?Picture $picture = null;
 
     public function __construct()
