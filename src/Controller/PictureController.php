@@ -50,21 +50,32 @@ class PictureController extends AbstractController
         return new JsonResponse($serializedPictures, Response::HTTP_OK, [], true);
     }
 
-    #[Route('/api/images/{filename}', name: 'get_image', methods: ['GET'])]
-    public function getImage(string $filename): BinaryFileResponse
+    #[Route('/api/images/game/{id}', name: 'get_images_by_game_id', methods: ['GET'])]
+    public function getImageByGameId(int $id, Request $request, EntityManagerInterface $entityManager): Response
     {
-        // Récupérez le chemin complet vers le fichier d'image
-        $filePath ='/var/www/html/symfony/projetFullStack/public/medias/pictures/' . $filename;
-        /* dd($filePath); */
+        // Récupérer l'ID de l'image correspondant au jeu
+        $imageId = $request->query->get('image_id');
 
-        // Vérifiez si le fichier existe
-        if (!file_exists($filePath)) {
-            throw $this->createNotFoundException('Image not found');
+        // Vérifier si l'ID de l'image est fourni
+        if (!$imageId) {
+            throw $this->createNotFoundException('Image ID not provided');
         }
 
-        // Renvoyez le fichier d'image en tant que réponse binaire
-        return new BinaryFileResponse($filePath);
+        // Récupérer l'image à partir de la base de données en fonction de son ID
+        $image = $entityManager->getRepository(Picture::class)->find($imageId);
+
+        // Récupérer le contenu de l'image
+        $imageData = file_get_contents('/var/www/html/symfony/projetFullStack/public/medias/pictures/' . $image->getRealPath());
+
+        // Créer une réponse avec le contenu de l'image
+        $response = new Response($imageData);
+
+        // Définir les en-têtes de réponse appropriés
+        $response->headers->set('Content-Type', $image->getMimeType());
+
+        return $response;
     }
+
 
     #[Route('/api/picture/{idPicture}', name:"picture.get", methods:['GET'])]
     public function getPicture(PictureRepository $repository, int $idPicture, UrlGeneratorInterface $urlGenerator, SerializerInterface $serializer):JsonResponse{
