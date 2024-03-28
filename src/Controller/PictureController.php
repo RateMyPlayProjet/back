@@ -51,18 +51,26 @@ class PictureController extends AbstractController
     }
 
     #[Route('/api/images/game/{id}', name: 'get_images_by_game_id', methods: ['GET'])]
-    public function getImageByGameId(int $id, Request $request, EntityManagerInterface $entityManager): Response
+    public function getImageByGameId(int $id, EntityManagerInterface $entityManager): Response
     {
-        // Récupérer l'ID de l'image correspondant au jeu
-        $imageId = $request->query->get('image_id');
+        // Récupérer le jeu à partir de l'ID
+        $game = $entityManager->getRepository(Game::class)->find($id);
 
-        // Vérifier si l'ID de l'image est fourni
-        if (!$imageId) {
-            throw $this->createNotFoundException('Image ID not provided');
+        // Vérifier si le jeu existe
+        if (!$game) {
+            throw $this->createNotFoundException('Game not found');
         }
 
-        // Récupérer l'image à partir de la base de données en fonction de son ID
-        $image = $entityManager->getRepository(Picture::class)->find($imageId);
+        // Récupérer les images associées au jeu
+        $images = $game->getPictures();
+
+        // Vérifier si des images ont été trouvées
+        if (!$images) {
+            throw $this->createNotFoundException('Images not found for the game ID: ' . $id);
+        }
+
+        // Pour l'exemple, supposons que vous souhaitez renvoyer uniquement la première image trouvée
+        $image = $images[0];
 
         // Récupérer le contenu de l'image
         $imageData = file_get_contents('/var/www/html/symfony/projetFullStack/public/medias/pictures/' . $image->getRealPath());
@@ -75,6 +83,7 @@ class PictureController extends AbstractController
 
         return $response;
     }
+
 
 
     #[Route('/api/picture/{idPicture}', name:"picture.get", methods:['GET'])]
