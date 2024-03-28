@@ -17,7 +17,7 @@ class Plateforme
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(["getAll"])]
+    #[Groups(["getAll","getAllGames"])]
     private ?string $namePlateforme = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]

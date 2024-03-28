@@ -5,13 +5,15 @@ namespace App\DataFixtures;
 use Faker\Factory;
 use App\Entity\Avis;
 use App\Entity\Game;
-use App\Entity\Notice;
 use App\Entity\User;
 use Faker\Generator;
+use App\Entity\Notice;
 use App\Entity\Persona;
+use App\Entity\Picture;
 use App\Entity\Plateforme;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
@@ -101,27 +103,28 @@ class AppFixtures extends Fixture
         $noticesEntries = [];
 
         for ($i = 0; $i < 10; $i++) {
-        // Instancier un nouveau jeu
-        $game = new Game();
-        // Gérer les dates de création et de mise à jour
-        $created = $this->faker->dateTimeBetween("-1 week", "now");
-        $updated = $this->faker->dateTimeBetween($created, "now");
-
-        // Assigner les propriétés à l'entité
-        $game->setName($this->faker->name())
-            ->setGenre(["Horreur", "Fantastic", "Aventure"])
-            ->setDescription($this->faker->word())
-            ->setDateSortie($updated)
-            ->setStatus("on")
-            ->setCreatedAt($created)
-            ->setNbJoueurs("De 1 à 2 joueurs")
-            ->setUpdatedAt($updated);
-
-        // Ajouter le jeu à la liste
-        $gamesEntries[] = $game;
-
-        // Ajouter à la transaction
-        $manager->persist($game);
+            // Instancier un nouveau jeu
+            $game = new Game();
+            // Gérer les dates de création et de mise à jour
+            $created = $this->faker->dateTimeBetween("-1 week", "now");
+            $updated = $this->faker->dateTimeBetween($created, "now");
+        
+            // Assigner les propriétés à l'entité
+            $game->setName($this->faker->name())
+                ->setGenre(["Horreur", "Fantastic", "Aventure"])
+                ->setDescription($this->faker->word())
+                ->setDateSortie($updated)
+                ->setStatus("on")
+                ->setCreatedAt($created)
+                ->setNbJoueurs("De 1 à 2 joueurs")
+                ->setUpdatedAt($updated);
+        
+            // Ajouter le jeu à la liste
+            $gamesEntries[] = $game;
+        
+            // Ajouter à la transaction
+            $manager->persist($game); 
+        }
 
         // Créer les plateformes
         for ($j = 0; $j < 5; $j++) {
@@ -145,7 +148,6 @@ class AppFixtures extends Fixture
         $noticesEntries[] = $avis;
         $manager->persist($avis);
     }
-}
 
     // Associer les plateformes et les avis à chaque jeu
     foreach ($gamesEntries as $gameEntry) {
@@ -157,15 +159,6 @@ class AppFixtures extends Fixture
     }
 
     // Flush des données
-    $manager->flush();
-
-
-        
-        
-        
-        
-        //Execute transaction
-        $manager->flush();
-    
+    $manager->flush();    
     }
 }

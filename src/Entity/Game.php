@@ -59,13 +59,13 @@ class Game
 
     #[ORM\OneToMany(mappedBy: 'game', targetEntity: Picture::class)]
     #[Groups(["getAllGames"])]
-    private Collection $picture;
+    private Collection $pictures;
 
     public function __construct()
     {
         $this->plateformes = new ArrayCollection();
         $this->notices = new ArrayCollection();
-        $this->picture = new ArrayCollection();
+        $this->pictures = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -226,15 +226,15 @@ class Game
     /**
      * @return Collection<int, Picture>
      */
-    public function getPicture(): Collection
+    public function getPictures(): Collection
     {
-        return $this->picture;
+        return $this->pictures;
     }
 
     public function addPicture(Picture $picture): static
     {
-        if (!$this->picture->contains($picture)) {
-            $this->picture->add($picture);
+        if (!$this->pictures->contains($picture)) {
+            $this->pictures->add($picture);
             $picture->setGame($this);
         }
 
@@ -243,7 +243,7 @@ class Game
 
     public function removePicture(Picture $picture): static
     {
-        if ($this->picture->removeElement($picture)) {
+        if ($this->pictures->removeElement($picture)) {
             // set the owning side to null (unless already changed)
             if ($picture->getGame() === $this) {
                 $picture->setGame(null);
@@ -252,4 +252,5 @@ class Game
 
         return $this;
     }
+
 }

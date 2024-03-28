@@ -3,10 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Game;
+use App\Entity\Picture;
 use OpenApi\Attributes as OA;
-use Nelmio\ApiDocBundle\Annotation\Model;
 use App\Repository\GameRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,7 +15,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Component\Serializer\SerializerInterface;
-use Doctrine\Common\Annotations\Annotation\Attributes;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
@@ -76,7 +76,7 @@ class GameController extends AbstractController
     #[Route('/api/game', name: 'game.post', methods: ['POST'])]
     public function createGame(Request $request,  SerializerInterface $serializer, EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator, ValidatorInterface $validator, TagAwareCacheInterface $cache): JsonResponse{
         $game = $serializer->deserialize($request->getContent(), Game::class,'json');
-        $dateNow = new \DateTime();
+        $dateNow = new \DateTime();       
 
         $plateforme = $request->toArray()["plateformes"];
         /* dd($plateformes); */
@@ -84,7 +84,6 @@ class GameController extends AbstractController
             $game->addEvolution($plateforme);
         }
         
-
         $game
         ->setStatus("on")
         ->setCreateAt($dateNow)
@@ -118,12 +117,12 @@ class GameController extends AbstractController
      * @param UrlGeneratorInterface $urlGenerator
      * @return JsonResponse
      */
-    #[Route('/api/film/{id}', name: 'film.update', methods: ['PUT'])]
+    #[Route('/api/game/{id}', name: 'game.update', methods: ['PUT'])]
     public function updateGame(Game $game, Request $request,  SerializerInterface $serializer, EntityManagerInterface $entityManager, TagAwareCacheInterface $cache): JsonResponse{
 
-        $updatedFilm = $serializer->deserialize($request->getContent(), Game::class,'json', [AbstractNormalizer::OBJECT_TO_POPULATE =>$game]);
-        $updatedFilm->setUpdateAt(new \DateTime());
-        $entityManager->persist($updatedFilm);
+        $updatedGame = $serializer->deserialize($request->getContent(), Game::class,'json', [AbstractNormalizer::OBJECT_TO_POPULATE =>$game]);
+        $updatedGame->setUpdateAt(new \DateTime());
+        $entityManager->persist($updatedGame);
         $entityManager->flush();
         $cache->invalidateTags(["gameCache"]);
         return new JsonResponse(null,JsonResponse::HTTP_NO_CONTENT,[],false);

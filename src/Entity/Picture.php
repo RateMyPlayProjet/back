@@ -6,6 +6,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\PictureRepository;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 
@@ -20,12 +21,15 @@ class Picture
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(["getAllGames"])]
     private ?string $realName = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(["getAllGames"])]
     private ?string $realPath = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(["getAllGames"])]
     private ?string $publicPath = null;
 
     #[ORM\Column(length: 255)]
@@ -47,7 +51,7 @@ class Picture
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\ManyToOne(inversedBy: 'picture')]
+    #[ORM\ManyToOne(inversedBy: 'pictures')]
     private ?Game $game = null;
 
     public function getId(): ?int
