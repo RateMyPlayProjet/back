@@ -50,7 +50,7 @@ class PictureController extends AbstractController
         return new JsonResponse($serializedPictures, Response::HTTP_OK, [], true);
     }
 
-    #[Route('/api/images/game/{id}', name: 'get_images_by_game_id', methods: ['GET'])]
+    #[Route('/api/images/game/{id}', name: 'picture.getGameById', methods: ['GET'])]
     public function getImageByGameId(int $id, EntityManagerInterface $entityManager): Response
     {
         // Récupérer le jeu à partir de l'ID
@@ -71,6 +71,40 @@ class PictureController extends AbstractController
 
         // Pour l'exemple, supposons que vous souhaitez renvoyer uniquement la première image trouvée
         $image = $images[0];
+
+        // Récupérer le contenu de l'image
+        $imageData = file_get_contents('/var/www/html/symfony/projetFullStack/public/medias/pictures/' . $image->getRealPath());
+
+        // Créer une réponse avec le contenu de l'image
+        $response = new Response($imageData);
+
+        // Définir les en-têtes de réponse appropriés
+        $response->headers->set('Content-Type', $image->getMimeType());
+
+        return $response;
+    }
+
+    #[Route('/api/images/user/{id}', name: 'picture.getUserById', methods: ['GET'])]
+    public function getImageByUserId(int $id, EntityManagerInterface $entityManager): Response
+    {
+        // Récupérer le jeu à partir de l'ID
+        $user = $entityManager->getRepository(User::class)->find($id);
+
+        // Vérifier si le jeu existe
+        if (!$user) {
+            throw $this->createNotFoundException('Game not found');
+        }
+
+        // Récupérer les images associées au jeu
+        $images = $user->getPicture();
+
+        // Vérifier si des images ont été trouvées
+        if (!$images) {
+            throw $this->createNotFoundException('Images not found for the game ID: ' . $id);
+        }
+
+        // Pour l'exemple, supposons que vous souhaitez renvoyer uniquement la première image trouvée
+        $image = $images;
 
         // Récupérer le contenu de l'image
         $imageData = file_get_contents('/var/www/html/symfony/projetFullStack/public/medias/pictures/' . $image->getRealPath());
