@@ -20,15 +20,15 @@ class Game
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(["getAllGames"])]
+    #[Groups(["getAllGames", "getAllCategories"])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::ARRAY)]
-    #[Groups(["getAllGames"])]
+    #[Groups(["getAllGames", "getAllCategories"])]
     private array $genre = [];
 
     #[ORM\Column(length: 255)]
-    #[Groups(["getAllGames"])]
+    #[Groups(["getAllGames", "getAllCategories"])]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
@@ -61,11 +61,15 @@ class Game
     #[Groups(["getAllGames"])]
     private Collection $pictures;
 
+    #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'games')]
+    private Collection $categ_id;
+
     public function __construct()
     {
         $this->plateformes = new ArrayCollection();
         $this->notices = new ArrayCollection();
         $this->pictures = new ArrayCollection();
+        $this->categ_id = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -249,6 +253,30 @@ class Game
                 $picture->setGame(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Category>
+     */
+    public function getCategId(): Collection
+    {
+        return $this->categ_id;
+    }
+
+    public function addCategId(Category $categId): static
+    {
+        if (!$this->categ_id->contains($categId)) {
+            $this->categ_id->add($categId);
+        }
+
+        return $this;
+    }
+
+    public function removeCategId(Category $categId): static
+    {
+        $this->categ_id->removeElement($categId);
 
         return $this;
     }

@@ -10,6 +10,7 @@ use Faker\Generator;
 use App\Entity\Notice;
 use App\Entity\Persona;
 use App\Entity\Picture;
+use App\Entity\Category;
 use App\Entity\Plateforme;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -101,6 +102,7 @@ class AppFixtures extends Fixture
         $gamesEntries = [];
         $plateformesEntries = [];
         $noticesEntries = [];
+        $categoriesEntries = [];
 
         for ($i = 0; $i < 10; $i++) {
             // Instancier un nouveau jeu
@@ -151,12 +153,27 @@ class AppFixtures extends Fixture
         $manager->persist($avis);
     }
 
+    //Créer des catégories
+    for ($j = 0; $j < 10; $j++) {
+        $category = new Category();
+        $category->setName($this->faker->word());
+        $category->setDescription($this->faker->sentence(10));
+        $category->setStatus('on');
+        $category->setCreatedAt(new \DateTime());
+        $category->setUpdatedAt(new \DateTime());
+
+        $categoriesEntries[] = $category; 
+        $manager->persist($category);
+    }
+
     // Associer les plateformes et les avis à chaque jeu
     foreach ($gamesEntries as $gameEntry) {
         $plateforme = $plateformesEntries[array_rand($plateformesEntries)];
         $avis = $noticesEntries[array_rand($noticesEntries)];
+        $categ = $categoriesEntries[array_rand($categoriesEntries)];
         $gameEntry->addPlateforme($plateforme);
         $gameEntry->addNotice($avis);
+        $gameEntry->addCategId($categ);
         $manager->persist($gameEntry);
     }
 
