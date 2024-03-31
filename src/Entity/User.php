@@ -48,11 +48,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->notice = new ArrayCollection();
     }
 
+    /**
+     * A visual identifier that represents this user.
+     *
+     * @see UserInterface
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * A visual identifier that represents this user.
+     *
+     * @see UserInterface
+     */
     public function getUsername(): ?string
     {
         return $this->username;
