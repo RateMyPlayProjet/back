@@ -64,6 +64,14 @@ class Game
     #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'games')]
     private Collection $categ_id;
 
+    #[ORM\Column]
+    #[Groups(["getAllGames"])]
+    private ?bool $isInWishList = false;
+
+    #[ORM\Column]
+    #[Groups(["getAllGames"])]
+    private ?bool $isInPersonalList = false;
+
     public function __construct()
     {
         $this->plateformes = new ArrayCollection();
@@ -277,6 +285,30 @@ class Game
     public function removeCategId(Category $categId): static
     {
         $this->categ_id->removeElement($categId);
+
+        return $this;
+    }
+
+    public function isIsInWishList(): ?bool
+    {
+        return $this->isInWishList;
+    }
+
+    public function setIsInWishList(bool $isInWishList): static
+    {
+        $this->isInWishList = $isInWishList;
+
+        return $this;
+    }
+
+    public function isIsInPersonalList(): ?bool
+    {
+        return $this->isInPersonalList;
+    }
+
+    public function setIsInPersonalList(bool $isInPersonalList): static
+    {
+        $this->isInPersonalList = $isInPersonalList;
 
         return $this;
     }

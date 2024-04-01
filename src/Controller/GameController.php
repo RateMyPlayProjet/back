@@ -53,19 +53,23 @@ class GameController extends AbstractController
         
         return new JsonResponse($jsonGame,200,[],true);
     }
-
+    /**
+     * Récupère les informations d'un jeu spécifié en utilisant son identifiant.
+     *
+     * @param Game $game L'objet Game à récupérer.
+     * @param SerializerInterface $serializer L'interface pour sérialiser les données du jeu en JSON.
+     * @return JsonResponse Une réponse JSON contenant les informations du jeu demandé.
+     */
     #[Route('/api/game/{idGame}', name: 'game.get', methods: ['GET'])]
     #[ParamConverter("game", options: ["id" => "idGame"])]
     
     public function getGame(Game $game, SerializerInterface $serializer): JsonResponse{
-       /*  $repository->findByStatus("on", $idGame); */
         $jsonGame= $serializer->serialize($game,'json', ['groups'=> "getAllGames"]);
         return new JsonResponse($jsonGame,200,[],true);
-        /* dd($films);//equivalent de console.log */
     }
 
     /**
-     * Create new game
+     * Créer un nouveau jeu
      *
      * @param Request $request
      * @param SerializerInterface $serializer
@@ -108,7 +112,7 @@ class GameController extends AbstractController
     }
 
     /** 
-     * Update Films with a id
+     * Update Game with a id
      *
      * @param Game $game
      * @param Request $request
@@ -118,10 +122,10 @@ class GameController extends AbstractController
      * @return JsonResponse
      */
     #[Route('/api/game/{id}', name: 'game.update', methods: ['PUT'])]
-    public function updateGame(Game $game, Request $request,  SerializerInterface $serializer, EntityManagerInterface $entityManager, TagAwareCacheInterface $cache): JsonResponse{
+    public function updateGame(Game $game, Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager, TagAwareCacheInterface $cache): JsonResponse{
 
         $updatedGame = $serializer->deserialize($request->getContent(), Game::class,'json', [AbstractNormalizer::OBJECT_TO_POPULATE =>$game]);
-        $updatedGame->setUpdateAt(new \DateTime());
+        $updatedGame->setUpdatedAt(new \DateTime()); // Utiliser setUpdatedAt au lieu de setUpdateAt
         $entityManager->persist($updatedGame);
         $entityManager->flush();
         $cache->invalidateTags(["gameCache"]);
@@ -129,8 +133,9 @@ class GameController extends AbstractController
 
     }
 
+
     /** 
-     * Update Films with a id
+     * Delete Game with a id
      *
      * @param Game $games
      * @param Request $request
@@ -156,12 +161,4 @@ class GameController extends AbstractController
         return new JsonResponse(null,JsonResponse::HTTP_NO_CONTENT,[],false);
 
     }
-    /* #[Route('/game', name: 'app_game')]
-    public function index(): JsonResponse
-    {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/GameController.php',
-        ]);
-    } */
 }

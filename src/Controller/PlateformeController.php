@@ -22,6 +22,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class PlateformeController extends AbstractController
 {
+    /**
+     * Renvoie toutes les plateformes
+     *
+     * @param PlateformeRepository $repository
+     * @param SerializerInterface $serializer
+     * @param TagAwareCacheInterface $cache
+     * @return JsonResponse
+     */
     #[Route('/api/plateforme', name:'plateforme.getAll', methods: ['GET'])]
     public function getAllPlateforme(PlateformeRepository $repository, SerializerInterface $serializer, TagAwareCacheInterface $cache): JsonResponse{
         $idCache = "getAllPlateforme";
@@ -34,6 +42,15 @@ class PlateformeController extends AbstractController
         return new JsonResponse($jsonPlateforme, 200,[],true);
     }
 
+    /**
+     * Créer une nouvelle plateforme
+     *
+     * @param Request $request
+     * @param SerializerInterface $serializer
+     * @param EntityManagerInterface $manager
+     * @param UrlGeneratorInterface $urlGenerator
+     * @return JsonResponse
+     */
     #[Route('/api/plateforme/{idPlateforme}', name:'plateforme.post', methods: ['POST'])]
     public function createPlateforme(Request $request, SerializerInterface $serializer, TagAwareCacheInterface $cache, EntityManagerInterface $entityManager, UrlGenerator $urlGenerator, ValidatorInterface $validator): JsonResponse{
         $plateforme = $serializer->deserialize($request->getContent(), Plateforme::class,'json');
@@ -86,13 +103,4 @@ class PlateformeController extends AbstractController
         return new JsonResponse(null,JsonResponse::HTTP_NO_CONTENT,[],false);
 
     }
-
-    /* #[Route('/plateforme', name: 'app_plateforme')]
-    public function index(): JsonResponse
-    {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/PlateformeController.php',
-        ]);
-    } */
 }

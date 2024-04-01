@@ -43,7 +43,13 @@ class NoticeController extends AbstractController
         
         return new JsonResponse($jsonGame,200,[],true);
     }
-
+    /**
+     * Récupère les informations d'une notice spécifiée en utilisant son identifiant.
+     *
+     * @param Notice $notice L'objet Notice à récupérer.
+     * @param SerializerInterface $serializer L'interface pour sérialiser les données de la notice en JSON.
+     * @return JsonResponse Une réponse JSON contenant les informations de la notice demandée.
+     */
     #[Route('/api/notice/{idNotice}', name: 'notice.get', methods: ['GET'])]
     #[ParamConverter("notice", options: ["id" => "idNotice"])]
     
@@ -52,7 +58,18 @@ class NoticeController extends AbstractController
         return new JsonResponse($jsonNotice,200,[],true);
     }
 
-
+    /**
+     * Crée une nouvelle notice pour un utilisateur spécifié.
+     *
+     * @param Request $request La requête HTTP contenant les données de la nouvelle notice.
+     * @param SerializerInterface $serializer L'interface pour sérialiser les données de la notice en JSON.
+     * @param TagAwareCacheInterface $cache L'interface pour gérer le cache.
+     * @param EntityManagerInterface $entityManager L'interface pour interagir avec la base de données.
+     * @param UrlGeneratorInterface $urlGenerator L'interface pour générer des URLs.
+     * @param ValidatorInterface $validator L'interface pour valider les données de la notice.
+     * @param int $userId L'identifiant de l'utilisateur pour lequel créer la notice.
+     * @return JsonResponse Une réponse JSON contenant la nouvelle notice créée.
+     */
     #[Route('/api/user/{userId}/notices/new', name:'create_notice_for_user', methods: ['POST'])]
     public function createNoticeForUser(Request $request,SerializerInterface $serializer,TagAwareCacheInterface $cache,EntityManagerInterface $entityManager,UrlGeneratorInterface $urlGenerator,ValidatorInterface $validator,int $userId): JsonResponse {
         $data = json_decode($request->getContent(), true);

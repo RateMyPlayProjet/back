@@ -26,6 +26,14 @@ class CategoryController extends AbstractController
         ]);
     }
 
+    /**
+     * Récupère toutes les catégories.
+     *
+     * @param CategoryRepository $repository Le repository des catégories.
+     * @param SerializerInterface $serializer L'interface pour sérialiser les données des catégories en JSON.
+     * @param TagAwareCacheInterface $cache L'interface pour gérer le cache.
+     * @return JsonResponse Une réponse JSON contenant toutes les catégories.
+     */
     #[Route('/api/category', name: 'category.getAll', methods: ['GET'])]
     public function getAllCategories(CategoryRepository $repository, SerializerInterface $serializer, TagAwareCacheInterface $cache): JsonResponse{
         
@@ -37,6 +45,13 @@ class CategoryController extends AbstractController
         return new JsonResponse($jsonCateg,200,[],true);
     }
 
+    /**
+     * Récupère une catégorie par son identifiant.
+     *
+     * @param Category $category La catégorie à récupérer.
+     * @param SerializerInterface $serializer L'interface pour sérialiser les données de la catégorie en JSON.
+     * @return JsonResponse Une réponse JSON contenant les données de la catégorie.
+     */
     #[Route('/api/category/{idCateg}', name: 'category.get', methods: ['GET'])]
     #[ParamConverter("category", options: ["id" => "idCateg"])]
     public function getCategory(Category $category, SerializerInterface $serializer): JsonResponse{

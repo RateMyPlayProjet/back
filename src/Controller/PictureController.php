@@ -29,7 +29,13 @@ class PictureController extends AbstractController
             'path' => 'src/Controller/PictureController.php',
         ]);
     }
-
+    /**
+     * Récupère toutes les images.
+     *
+     * @param PictureRepository $repository Le repository pour récupérer les images depuis la base de données.
+     * @param SerializerInterface $serializer Le service de sérialisation pour la sérialisation.
+     * @return JsonResponse La réponse JSON contenant la liste sérialisée des images, ou une réponse de non trouvé si aucune image n'est trouvée.
+     */
     #[Route('/api/picture', name:"picture.getAll", methods:['GET'])]
     public function getAllPictures(PictureRepository $repository, SerializerInterface $serializer): JsonResponse
     {
@@ -49,7 +55,13 @@ class PictureController extends AbstractController
 
         return new JsonResponse($serializedPictures, Response::HTTP_OK, [], true);
     }
-
+    /**
+     * Récupère l'image associée à un jeu par son identifiant.
+     *
+     * @param int $id L'identifiant du jeu.
+     * @param EntityManagerInterface $entityManager Le gestionnaire d'entités pour interagir avec la base de données.
+     * @return Response La réponse HTTP contenant le contenu de l'image ou une exception si aucune image n'est trouvée pour le jeu spécifié.
+    */
     #[Route('/api/images/game/{id}', name: 'picture.getGameById', methods: ['GET'])]
     public function getImageByGameId(int $id, EntityManagerInterface $entityManager): Response
     {
@@ -84,6 +96,13 @@ class PictureController extends AbstractController
         return $response;
     }
 
+    /**
+     * Récupère l'image associée à un utilisateur par son identifiant.
+     *
+     * @param int $id L'identifiant de l'utilisateur.
+     * @param EntityManagerInterface $entityManager Le gestionnaire d'entités pour interagir avec la base de données.
+     * @return Response La réponse HTTP contenant le contenu de l'image ou une exception si aucune image n'est trouvée pour l'utilisateur spécifié.
+    */
     #[Route('/api/images/user/{id}', name: 'picture.getUserById', methods: ['GET'])]
     public function getImageByUserId(int $id, EntityManagerInterface $entityManager): Response
     {
@@ -119,7 +138,13 @@ class PictureController extends AbstractController
     }
 
 
-
+    /**
+     * Récupère l'image
+     *
+     * @param int $id L'identifiant de l'image.
+     * @param EntityManagerInterface $entityManager Le gestionnaire d'entités pour interagir avec la base de données.
+     * @return Response La réponse HTTP contenant le contenu de l'image ou une exception si aucune image n'est trouvée pour l'utilisateur spécifié.
+    */
     #[Route('/api/picture/{idPicture}', name:"picture.get", methods:['GET'])]
     public function getPicture(PictureRepository $repository, int $idPicture, UrlGeneratorInterface $urlGenerator, SerializerInterface $serializer):JsonResponse{
         $picture = $repository->find($idPicture);
@@ -139,6 +164,15 @@ class PictureController extends AbstractController
         return new JsonResponse($serializer->serialize($picture,'json', $context), Response::HTTP_OK, ["Location" => $location],true);
     }
 
+    /**
+     * Crée une nouvelle image à partir des données fournies dans la requête.
+     *
+     * @param Request $request L'objet de requête HTTP contenant les données de l'image à créer.
+     * @param EntityManagerInterface $entityManager L'interface pour interagir avec l'entité Picture dans la base de données.
+     * @param SerializerInterface $serializer L'interface pour sérialiser les données de l'image en JSON.
+     * @param UrlGeneratorInterface $urlGenerator L'interface pour générer des URL absolues.
+     * @return JsonResponse Une réponse JSON contenant les détails de l'image créée.
+    */
     #[Route('/api/picture', name:'picture.create', methods: ['POST'])]
     public function createPicture(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator): JsonResponse {
         $picture = new Picture();
@@ -162,6 +196,16 @@ class PictureController extends AbstractController
         return new JsonResponse($jsonResponse, Response::HTTP_CREATED, ['Location' => $location], true);
     }
 
+    /**
+     * Met à jour une image associée à un jeu spécifié.
+     *
+     * @param Picture $picture L'objet Picture à mettre à jour.
+     * @param Request $request L'objet de requête HTTP contenant les données de mise à jour de l'image.
+     * @param SerializerInterface $serializer L'interface pour sérialiser les données de l'image en JSON.
+     * @param EntityManagerInterface $entityManager L'interface pour interagir avec l'entité Picture dans la base de données.
+     * @param TagAwareCacheInterface $cache L'interface pour gérer le cache et invalider les données en cache si nécessaire.
+     * @return JsonResponse Une réponse JSON indiquant le succès de la mise à jour de l'image.
+     */
     #[Route('/api/picture/game/{id}', name: 'picture.update', methods: ['PUT'])]
     public function updatePictureByIdForGame(Picture $picture, Request $request,  SerializerInterface $serializer, EntityManagerInterface $entityManager, TagAwareCacheInterface $cache): JsonResponse{
 
@@ -192,6 +236,18 @@ class PictureController extends AbstractController
 
         return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT, [], false);
     }
+
+
+    /**
+     * Met à jour une image associée à un utilisateur spécifié.
+     *
+     * @param Picture $picture L'objet Picture à mettre à jour.
+     * @param Request $request L'objet de requête HTTP contenant les données de mise à jour de l'image.
+     * @param SerializerInterface $serializer L'interface pour sérialiser les données de l'image en JSON.
+     * @param EntityManagerInterface $entityManager L'interface pour interagir avec l'entité Picture dans la base de données.
+     * @param TagAwareCacheInterface $cache L'interface pour gérer le cache et invalider les données en cache si nécessaire.
+     * @return JsonResponse Une réponse JSON indiquant le succès de la mise à jour de l'image.
+    */
 
     #[Route('/api/picture/user/{id}', name: 'picture.update', methods: ['PUT'])]
     public function updatePictureByIdForUser(Picture $picture, Request $request,  SerializerInterface $serializer, EntityManagerInterface $entityManager, TagAwareCacheInterface $cache): JsonResponse{
