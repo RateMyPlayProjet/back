@@ -4,37 +4,25 @@ Ce guide vous aidera à installer et à utiliser le back-end de l'application.
 
 ## Installation
 
-1. Clonez ce dépôt sur votre machine locale :
-
-    ```bash
-    git clone <url_du_dépôt>
-    ```
-
-2. Accédez au répertoire du projet :
-
-    ```bash
-    cd nom_du_projet
-    ```
-
-3. Installez les dépendances PHP en exécutant la commande suivante :
+1. Installez les dépendances PHP en exécutant la commande suivante :
 
     ```bash
     composer install
     ```
 
-4. Créez la base de données :
+2. Créez la base de données :
 
     ```bash
     php bin/console doctrine:database:create
     ```
 
-5. Effectuez les migrations pour créer les tables de la base de données :
+3. Effectuez les migrations pour créer les tables de la base de données :
 
     ```bash
     php bin/console doctrine:migrations:migrate
     ```
 
-6. Chargez les fixtures pour peupler la base de données avec des données de test :
+4. Chargez les fixtures pour peupler la base de données avec des données de test :
 
     ```bash
     php bin/console doctrine:fixtures:load
