@@ -83,7 +83,6 @@ class GameController extends AbstractController
         $dateNow = new \DateTime();       
 
         $plateforme = $request->toArray()["plateformes"];
-        /* dd($plateformes); */
         if(!is_null($plateforme) && $plateforme instanceof Game){
             $game->addEvolution($plateforme);
         }
